@@ -132,7 +132,7 @@
             100% { transform: translateX(-100%); }
         }
         .animate-marquee {
-            animation: marquee 20s linear infinite;
+            animation: marquee 50s linear infinite;
         }
 
         /* Fade Up Animation */
@@ -169,9 +169,9 @@
 
                 <!-- Desktop Nav -->
                 <nav class="hidden md:flex gap-8 font-sans text-xs tracking-[0.2em] uppercase font-medium" :class="scrolled && !isDark ? 'text-ink' : 'text-white'">
-                    <a href="#products" @click.prevent="scrollToProducts" class="hover:text-leather transition-colors">Shop</a>
-                    <a href="#philosophy" @click.prevent="scrollToProducts" class="hover:text-leather transition-colors">Atelier</a>
-                    <a href="#materials" @click.prevent="scrollToProducts" class="hover:text-leather transition-colors">Materials</a>
+                    <a href="products.html" class="hover:text-leather transition-colors">Shop</a>
+                    <a href="about.html" class="hover:text-leather transition-colors">About</a>
+                    <a href="contact.html" class="hover:text-leather transition-colors">Contact</a>
                 </nav>
 
                 <!-- Logo -->
@@ -200,8 +200,8 @@
             <section class="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
                 <!-- Background Image -->
                 <img 
-                    src="/Hero Page/heropageimage.jpg" 
-                    alt="Leather Craftsmanship" 
+                    src="/Public/heropageimage.jpg" 
+                    alt="Premium marketplace showcasing quality products" 
                     class="absolute inset-0 w-full h-full object-cover z-0 img-zoom"
                 >
                 
@@ -214,11 +214,11 @@
                 <!-- Text Content (Centered) -->
                 <div class="relative z-20 text-center px-6 max-w-4xl mx-auto overflow-visible">
                     <p class="font-sans text-xs text-gold font-bold tracking-[0.4em] uppercase mb-6 animate-fade-up shadow-sm">Est. 2024 • Lahore</p>
-                    <h2 class="font-serif text-5xl md:text-7xl lg:text-9xl text-transparent bg-clip-text bg-gradient-to-r from-white via-gold to-whiskey mb-8 animate-fade-up leading-tight drop-shadow-2xl" style="animation-delay: 100ms;">
-                        Timeless Design, Thoughtful Detail.
+                    <h2 class="font-serif text-4xl md:text-6xl lg:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-white via-gold to-whiskey mb-8 animate-fade-up leading-tight drop-shadow-2xl" style="animation-delay: 100ms;">
+                        Your Premium Marketplace
                     </h2>
                     <p class="font-sans text-sm md:text-lg text-white/90 max-w-lg mx-auto leading-relaxed mb-8 animate-fade-up tracking-wide drop-shadow-md" style="animation-delay: 200ms;">
-                        Slim silhouettes, real leather, made for the carry that matters.
+                        Discover exceptional products from trusted artisans. Quality craftsmanship meets modern convenience.
                     </p>
                     <div class="animate-fade-up flex items-center justify-center gap-4" style="animation-delay: 300ms;">
                         <a 
@@ -226,14 +226,14 @@
                             @click.prevent="scrollToProducts" 
                             class="inline-block btn-magnetic bg-white text-ink px-12 py-4 font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-gold hover:text-white border-none shadow-2xl cursor-pointer no-underline"
                         >
-                            Shop Wallets
+                            Explore Products
                         </a>
                         <a 
                             href="#philosophy" 
                             @click.prevent="scrollToProducts" 
                             class="inline-block font-sans text-sm text-white/90 underline underline-offset-4 hover:text-gold transition-colors"
                         >
-                            Explore Craftsmanship
+                            Our Promise
                         </a>
                     </div>
                 </div>
@@ -244,37 +244,39 @@
                 <div class="max-w-4xl mx-auto text-center">
                     <i class="ph ph-seal-check text-4xl text-gold mb-6 inline-block"></i>
                     <h3 class="font-serif text-3xl md:text-5xl text-ink dark:text-white mb-8 leading-tight">
-                        "We make products you'll reach for every day — enduring materials, considered design, and service that stands behind them."
+                        "We curate exceptional products you'll reach for every day enduring materials, considered design, and service that stands behind them."
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-16 font-sans text-sm tracking-wide">
                         <div class="flex flex-col items-center">
                             <span class="text-leather font-bold text-lg mb-2">01.</span>
-                            <h4 class="uppercase tracking-widest font-bold mb-2">Premium Materials</h4>
-                            <p class="text-gray-500 dark:text-gray-400">Full-grain leather and durable hardware selected for longevity.</p>
+                            <h4 class="uppercase tracking-widest font-bold mb-2">Premium Quality</h4>
+                            <p class="text-gray-500 dark:text-gray-400">Carefully selected materials and expert craftsmanship for lasting value.</p>
                         </div>
                         <div class="flex flex-col items-center">
                             <span class="text-leather font-bold text-lg mb-2">02.</span>
-                            <h4 class="uppercase tracking-widest font-bold mb-2">Secure & Practical</h4>
-                            <p class="text-gray-500 dark:text-gray-400">Thoughtful details like RFID protection and organized interiors.</p>
+                            <h4 class="uppercase tracking-widest font-bold mb-2">Trusted Partners</h4>
+                            <p class="text-gray-500 dark:text-gray-400">Working with skilled artisans and established brands you can rely on.</p>
                         </div>
                         <div class="flex flex-col items-center">
                             <span class="text-leather font-bold text-lg mb-2">03.</span>
-                            <h4 class="uppercase tracking-widest font-bold mb-2">Care & Support</h4>
-                            <p class="text-gray-500 dark:text-gray-400">Repairs and responsive support to keep your pieces in service.</p>
+                            <h4 class="uppercase tracking-widest font-bold mb-2">Customer First</h4>
+                            <p class="text-gray-500 dark:text-gray-400">Dedicated support and satisfaction guarantee for every purchase.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 3. MARQUEE BANNER -->
             <div class="bg-leather text-gold py-3 overflow-hidden whitespace-nowrap border-y border-gold/20">
                     <div class="inline-flex animate-marquee font-sans text-xs uppercase tracking-[0.4em] font-bold">
                     <span class="mx-8">Free shipping over PKR 5,000 • Easy returns</span> • 
                     <span class="mx-8">Secure payments • 24/7 support</span> • 
-                    <span class="mx-8">New collection arriving soon</span> • 
+                    <span class="mx-8">New collections launching soon</span> • 
                     <span class="mx-8">Free shipping over PKR 5,000 • Easy returns</span> • 
                     <span class="mx-8">Secure payments • 24/7 support</span> • 
-                    <span class="mx-8">New collection arriving soon</span> • 
+                    <span class="mx-8">New collections launching soon</span> • 
+                    <span class="mx-8">Free shipping over PKR 5,000 • Easy returns</span> • 
+                    <span class="mx-8">Secure payments • 24/7 support</span> • 
+                    <span class="mx-8">New collections launching soon</span> • 
                 </div>
             </div>
 
@@ -282,8 +284,8 @@
             <section id="products" class="py-24 px-6 md:px-12 max-w-[1800px] mx-auto bg-canvas dark:bg-dark-canvas transition-colors duration-500">
                 <div class="flex justify-between items-end mb-16 border-b border-gray-300 dark:border-gray-800 pb-4">
                     <div>
-                        <p class="font-sans text-xs text-leather font-bold tracking-[0.3em] uppercase mb-2">Collections</p>
-                        <h3 class="font-serif text-4xl text-ink dark:text-white">Curated Collections</h3>
+                        <p class="font-sans text-xs text-leather font-bold tracking-[0.3em] uppercase mb-2">Launch Collection</p>
+                        <h3 class="font-serif text-4xl text-ink dark:text-white">Premium Leather Goods</h3>
                     </div>
                     <div class="hidden md:flex gap-4">
                         <span class="text-gray-400 text-xs uppercase tracking-widest">3 Items Available</span>
@@ -401,7 +403,7 @@
                     <div class="col-span-1 md:col-span-1">
                         <h2 class="font-serif text-3xl mb-6 text-gold">ALFMART</h2>
                         <p class="font-sans text-sm text-white/60 leading-relaxed mb-6">
-                            Redefining the gentleman's carry through craftsmanship, integrity, and timeless design.
+                            Your trusted destination for premium products. Connecting quality craftsmanship with modern shopping.
                         </p>
                         <div class="flex gap-4 text-white/60">
                             <i class="ph ph-instagram-logo text-xl hover:text-gold cursor-pointer transition-colors"></i>
@@ -414,9 +416,9 @@
                     <div class="col-span-1">
                         <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-8 text-white">Shop</h4>
                         <ul class="space-y-4 font-sans text-sm text-white/60">
-                            <li><a href="#" class="hover:text-gold transition-colors">All Wallets</a></li>
+                            <li><a href="products.html" class="hover:text-gold transition-colors">All Products</a></li>
                             <li><a href="#" class="hover:text-gold transition-colors">New Arrivals</a></li>
-                            <li><a href="#" class="hover:text-gold transition-colors">Accessories</a></li>
+                            <li><a href="#" class="hover:text-gold transition-colors">Categories</a></li>
                             <li><a href="#" class="hover:text-gold transition-colors">Gift Cards</a></li>
                         </ul>
                     </div>
@@ -425,17 +427,16 @@
                     <div class="col-span-1">
                         <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-8 text-white">Service</h4>
                         <ul class="space-y-4 font-sans text-sm text-white/60">
-                            <li><a href="#" class="hover:text-gold transition-colors">Track Order</a></li>
-                            <li><a href="#" class="hover:text-gold transition-colors">Returns & Exchange</a></li>
-                            <li><a href="#" class="hover:text-gold transition-colors">Warranty Claim</a></li>
-                            <li><a href="#" class="hover:text-gold transition-colors">Contact Us</a></li>
+                            <li><a href="track-order.html" class="hover:text-gold transition-colors">Track Order</a></li>
+                            <li><a href="returns.html" class="hover:text-gold transition-colors">Returns & Exchange</a></li>
+                            <li><a href="contact.html" class="hover:text-gold transition-colors">Contact Us</a></li>
                         </ul>
                     </div>
 
                     <!-- Newsletter Column -->
                     <div class="col-span-1">
                         <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-8 text-white">The Journal</h4>
-                        <p class="font-sans text-sm text-white/60 mb-6">Join for early access to limited drops and atelier stories.</p>
+                        <p class="font-sans text-sm text-white/60 mb-6">Join for early access to new collections and exclusive offers.</p>
                         <div class="flex border-b border-white/20 pb-2">
                             <input type="email" placeholder="Email Address" class="bg-transparent border-none outline-none w-full text-sm placeholder:text-white/30 focus:ring-0">
                             <button class="text-xs uppercase tracking-widest text-gold hover:text-white transition-colors">Join</button>
