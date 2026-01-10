@@ -982,6 +982,7 @@
                             if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey) {
                                 try { emailjs.init(EMAILJS_CONFIG.publicKey); } catch (e) { /* ignore */ }
                             }
+                            console.log('EMAILJS_CONFIG loaded:', EMAILJS_CONFIG);
                         })
                         .catch(err => console.warn('Could not load EmailJS config:', err));
 
