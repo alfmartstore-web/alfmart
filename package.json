@@ -1,5 +1,9 @@
 {
-  "name": "pakmegamart-2-0",
+  "name": "alfmart-2-0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alfmartstore-web/alfmart.git"
+  },
   "version": "1.0.0",
   "scripts": {
     "dev": "wrangler pages dev . --local",
