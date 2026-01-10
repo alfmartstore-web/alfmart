@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Your Order Confirmation</title>
+  <title>AlfMart - Your Order Confirmation</title>
   <style>
     body { font-family: Arial, Helvetica, sans-serif; color: #111; }
     .container { max-width:600px; margin:0 auto; padding:20px; }
@@ -17,8 +17,8 @@
 <body>
   <div class="container">
       <div class="header">
-      <h2>Thank you for your order from AlfMart!</h2>
-    </div>
+        <h2>AlfMart — Thank you for your order!</h2>
+      </div>
     <div class="content">
       <p>Hi {{customer_name}},</p>
       <p>We have received your order <strong>#{{order_id}}</strong>. Please keep this email for your records.</p>
@@ -31,8 +31,7 @@
 
       <p><strong>Payment Method:</strong> {{payment_method}}</p>
 
-      {{#if show_cod}}
-      {{else}}
+      {{^show_cod}}
       <div class="bank">
         <p><strong>Bank Transfer Instructions</strong></p>
         <p>Meezan Bank<br>
@@ -42,10 +41,11 @@
         Branch: Avian Chowk Br Lahore</p>
       </div>
       <p style="margin-top:12px;">After transferring, please send the payment proof via WhatsApp so we can verify and dispatch your order.</p>
-      {{/if}}
+      {{/show_cod}}
 
       <hr style="margin:18px 0; border:none; border-top:1px solid #eee">
       <p style="font-size:12px;color:#666">If you have questions, reply to this email or contact alfmart.store@gmail.com.</p>
+      <p style="font-size:12px;color:#666">AlfMart • alfmart.store@gmail.com</p>
     </div>
   </div>
 </body>

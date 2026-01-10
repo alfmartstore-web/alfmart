@@ -870,8 +870,8 @@
                         customer_address: `${customerDetails.value.address}, ${customerDetails.value.city}`,
                         total_amount: `PKR ${cartTotal.value.toLocaleString()}`,
                         payment_method: paymentMethod.value === 'cod' ? 'Cash on Delivery' : 'Bank Transfer',
-                        show_cod: paymentMethod.value === 'cod' ? 'Cash on Delivery' : '',
-                        show_bank: paymentMethod.value === 'bank' ? 'Bank Transfer' : '',
+                        show_cod: paymentMethod.value === 'cod',
+                        show_bank: paymentMethod.value === 'bank',
                         cart_items: cart.value.map(i => `${i.name} - ${i.selectedColor} - PKR ${i.price}`).join('\n')
                     };
 
