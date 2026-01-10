@@ -892,38 +892,56 @@
 
                         // Send admin email
                         if (TEMPLATE_ADMIN) {
-                            await emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams)
-                                .then(res => console.log('EmailJS admin send success:', res))
-                                .catch(e => {
-                                    console.error('EmailJS admin send failed:', {
-                                        message: e && e.message ? e.message : String(e),
-                                        status: e && e.status ? e.status : null,
-                                        detail: e && e.text ? e.text : null,
-                                        raw: e
-                                    });
-                                    throw e;
-                                });
+                            try {
+                                const adminRes = await (EMAILJS_CONFIG.publicKey
+                                    ? emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams, EMAILJS_CONFIG.publicKey)
+                                    : emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams));
+                                console.log('EmailJS admin send success:', adminRes);
+                            } catch (e) {
+                                const adminErr = formatEmailJSError(e);
+                                console.error('EmailJS admin send failed:', adminErr);
+                                throw e;
+                            }
                         }
 
                         // Send customer email
                         if (TEMPLATE_CUSTOMER) {
-                            await emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams)
-                                .then(res => console.log('EmailJS customer send success:', res))
-                                .catch(e => {
-                                    console.error('EmailJS customer send failed:', {
-                                        message: e && e.message ? e.message : String(e),
-                                        status: e && e.status ? e.status : null,
-                                        detail: e && e.text ? e.text : null,
-                                        raw: e
-                                    });
-                                    throw e;
-                                });
+                            try {
+                                const custRes = await (EMAILJS_CONFIG.publicKey
+                                    ? emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams, EMAILJS_CONFIG.publicKey)
+                                    : emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams));
+                                console.log('EmailJS customer send success:', custRes);
+                            } catch (e) {
+                                const custErr = formatEmailJSError(e);
+                                console.error('EmailJS customer send failed:', custErr);
+                                throw e;
+                            }
                         }
                     } catch (err) {
-                        console.error('EmailJS send error (final):', err && err.message ? err.message : err);
+                        console.error('EmailJS send error (final):', formatEmailJSError(err));
                         throw err;
                     }
                 };
+
+                // Helper to extract useful info from EmailJS errors
+                function formatEmailJSError(e) {
+                    try {
+                        if (!e) return e;
+                        const out = {};
+                        out.message = e.message || (typeof e === 'string' ? e : null);
+                        out.status = e.status || (e && e.statusCode) || null;
+                        // e.text may be a string or function
+                        out.text = e.text || (e && e.text && typeof e.text === 'function' ? String(e.text) : null) || null;
+                        // If there's a response object with body, try to include
+                        if (e && e.response) {
+                            out.response = e.response;
+                        }
+                        out.raw = e;
+                        return out;
+                    } catch (ex) {
+                        return { message: String(e), raw: e };
+                    }
+                }
 
                 // Existing Methods
                 const toggleTheme = () => {
