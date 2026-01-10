@@ -49,7 +49,8 @@ app.get('/api/config', (req, res) => {
     emailjsPublicKey: process.env.EMAILJS_PUBLIC_KEY || null,
     serviceId: process.env.EMAILJS_SERVICE_ID || null,
     templateAdmin: process.env.EMAILJS_TEMPLATE_ADMIN || null,
-    templateCustomer: process.env.EMAILJS_TEMPLATE_CUSTOMER || null
+    templateCustomer: process.env.EMAILJS_TEMPLATE_CUSTOMER || null,
+    contactEmail: process.env.CONTACT_EMAIL || null
   };
   res.json(config);
 });
