@@ -877,10 +877,50 @@
 
                     try {
                         if (typeof emailjs === 'undefined') throw new Error('EmailJS SDK not loaded');
-                        if (SERVICE_ID && TEMPLATE_ADMIN) await emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams);
-                        if (SERVICE_ID && TEMPLATE_CUSTOMER) await emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams);
+
+                        // Ensure EmailJS is initialized with public key if available
+                        try {
+                            if (EMAILJS_CONFIG.publicKey && typeof emailjs.init === 'function') {
+                                emailjs.init(EMAILJS_CONFIG.publicKey);
+                            }
+                        } catch (initErr) {
+                            console.warn('EmailJS init warning:', initErr && initErr.message ? initErr.message : initErr);
+                        }
+
+                        if (!SERVICE_ID) throw new Error('Missing EmailJS service ID');
+                        if (!TEMPLATE_ADMIN && !TEMPLATE_CUSTOMER) throw new Error('No EmailJS template IDs configured');
+
+                        // Send admin email
+                        if (TEMPLATE_ADMIN) {
+                            await emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams)
+                                .then(res => console.log('EmailJS admin send success:', res))
+                                .catch(e => {
+                                    console.error('EmailJS admin send failed:', {
+                                        message: e && e.message ? e.message : String(e),
+                                        status: e && e.status ? e.status : null,
+                                        detail: e && e.text ? e.text : null,
+                                        raw: e
+                                    });
+                                    throw e;
+                                });
+                        }
+
+                        // Send customer email
+                        if (TEMPLATE_CUSTOMER) {
+                            await emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams)
+                                .then(res => console.log('EmailJS customer send success:', res))
+                                .catch(e => {
+                                    console.error('EmailJS customer send failed:', {
+                                        message: e && e.message ? e.message : String(e),
+                                        status: e && e.status ? e.status : null,
+                                        detail: e && e.text ? e.text : null,
+                                        raw: e
+                                    });
+                                    throw e;
+                                });
+                        }
                     } catch (err) {
-                        console.error('EmailJS send error:', err);
+                        console.error('EmailJS send error (final):', err && err.message ? err.message : err);
                         throw err;
                     }
                 };
