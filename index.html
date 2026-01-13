@@ -84,6 +84,7 @@
 
         /* Utility Classes */
         .text-balance { text-wrap: balance; }
+        [v-cloak] { display: none !important; }
         
         /* Loader Animation */
         .loader-blind {
@@ -194,13 +195,23 @@
             </div>
         </header>
 
+        <!-- Mobile Menu Overlay -->
+        <div v-if="mobileMenuOpen" class="fixed inset-0 z-50 bg-canvas dark:bg-dark-canvas flex flex-col items-center justify-center transition-opacity duration-300 animate-fade-up">
+            <button @click="mobileMenuOpen = false" class="absolute top-6 right-6 text-3xl text-ink dark:text-white"><i class="ph ph-x"></i></button>
+            <nav class="flex flex-col gap-8 text-center font-serif text-2xl text-ink dark:text-white">
+                <a href="products.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">Shop</a>
+                <a href="about.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">About</a>
+                <a href="contact.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">Contact</a>
+            </nav>
+        </div>
+
         <!-- Main Content (Smooth Scroll Wrapper) -->
         <main>
             <!-- 1. HERO SECTION (Updated: Full Screen Cover) -->
             <section class="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
                 <!-- Background Image -->
                 <img 
-                    src="/Public/heropageimage.jpg" 
+                    src="Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet Brown.png" 
                     alt="Premium marketplace showcasing quality products" 
                     class="absolute inset-0 w-full h-full object-cover z-0 img-zoom"
                 >
@@ -446,7 +457,7 @@
 
                 <!-- Bottom Bar -->
                 <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center text-xs font-sans text-white/40 tracking-wide">
-                    <p>&copy; 2024 AlfMart. All Rights Reserved.</p>
+                    <p>&copy; 2026 AlfMart. All Rights Reserved.</p>
                     <div class="flex gap-6 mt-4 md:mt-0">
                         <a href="#" class="hover:text-white">Privacy Policy</a>
                         <a href="#" class="hover:text-white">Terms of Service</a>
@@ -485,7 +496,7 @@
                             <div class="flex-1">
                                 <h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4>
                                 <p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p>
-                                <p class="text-sm font-medium">PKR {{ item.price.toLocaleString() }}</p>
+                                <p class="text-sm font-medium">Qty: {{ item.quantity || 1 }} × PKR {{ item.price.toLocaleString() }}</p>
                             </div>
                             <button @click="removeFromCart(i)" class="text-gray-400 hover:text-red-500 self-start"><i class="ph ph-trash"></i></button>
                         </div>
@@ -542,11 +553,11 @@
                             <div v-else>
                                 <p class="text-sm text-gray-500 mb-4">To finalize your order, please transfer <strong>PKR {{ cartTotal.toLocaleString() }}</strong> to the account below and send proof.</p>
                                 <div class="bg-gray-100 dark:bg-[#222] p-4 text-left text-xs font-mono mb-4 text-gray-600 dark:text-gray-400">
-                                    Meezan Bank<br>
-                                    Title: MUHAMMAD AHMAD<br>
-                                    AC: 02780113523044<br>
-                                    IBAN: PK98MEZN0002780113523044<br>
-                                    Branch: Avian Chowk Br Lahore
+                                    {{ whatsappConfig.bank.name }}<br>
+                                    Title: {{ whatsappConfig.bank.accountTitle }}<br>
+                                    AC: {{ whatsappConfig.bank.accountNumber }}<br>
+                                    IBAN: {{ whatsappConfig.bank.iban }}<br>
+                                    Branch: {{ whatsappConfig.bank.branch }}
                                 </div>
                                 <button @click="sendProofWhatsApp" class="w-full bg-[#25D366] text-white py-3 font-sans text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#20bd5a]">
                                     <i class="ph ph-whatsapp-logo text-lg"></i> Send Payment Proof
@@ -610,11 +621,11 @@
                                 </label>
                                 
                                 <div v-if="paymentMethod === 'bank'" class="ml-8 p-4 bg-gray-100 dark:bg-[#151515] text-xs font-mono text-gray-600 dark:text-gray-400 border-l-2 border-gold animate-fade-up">
-                                    <p class="mb-1"><strong>Bank:</strong> Meezan Bank</p>
-                                    <p class="mb-1"><strong>Title:</strong> MUHAMMAD AHMAD</p>
-                                    <p class="mb-1"><strong>Account:</strong> 02780113523044</p>
-                                    <p class="mb-1"><strong>IBAN:</strong> PK98MEZN0002780113523044</p>
-                                    <p class="mb-1"><strong>Branch:</strong> Avian Chowk Br Lahore</p>
+                                    <p class="mb-1"><strong>Bank:</strong> {{ whatsappConfig.bank.name }}</p>
+                                    <p class="mb-1"><strong>Title:</strong> {{ whatsappConfig.bank.accountTitle }}</p>
+                                    <p class="mb-1"><strong>Account:</strong> {{ whatsappConfig.bank.accountNumber }}</p>
+                                    <p class="mb-1"><strong>IBAN:</strong> {{ whatsappConfig.bank.iban }}</p>
+                                    <p class="mb-1"><strong>Branch:</strong> {{ whatsappConfig.bank.branch }}</p>
                                 </div>
                             </div>
                         </div>
@@ -626,9 +637,9 @@
                                 <div v-for="(item, i) in cart" :key="i" class="flex justify-between items-start text-sm">
                                     <div>
                                         <p class="font-serif text-ink dark:text-white">{{ item.name }}</p>
-                                        <p class="text-xs text-gray-500 capitalize">{{ item.selectedColor }}</p>
+                                        <p class="text-xs text-gray-500 capitalize">{{ item.selectedColor }} - Qty: {{ item.quantity || 1 }}</p>
                                     </div>
-                                    <p class="font-mono text-gray-600 dark:text-gray-400">PKR {{ item.price.toLocaleString() }}</p>
+                                    <p class="font-mono text-gray-600 dark:text-gray-400">PKR {{ ((item.quantity || 1) * item.price).toLocaleString() }}</p>
                                 </div>
                             </div>
                             <div class="border-t border-gray-200 dark:border-gray-800 pt-4 mb-8">
@@ -661,7 +672,7 @@
                 
                 <!-- Gallery -->
                 <div class="bg-gray-100 relative h-[400px] md:h-[500px]">
-                    <img :src="activeProduct.id === 1 ? `/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet ${selectedColor === 'lightgray' ? 'Light Gray' : selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 2 ? `/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 3 ? `/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.jpg` : activeProduct.image" class="w-full h-full object-cover">
+                    <img :src="activeProduct.id === 1 ? `Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet ${selectedColor === 'lightgray' ? 'Light Gray' : selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 2 ? `Public/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 3 ? `Public/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.jpg` : activeProduct.image" class="w-full h-full object-cover">
                 </div>
 
                 <!-- Details -->
@@ -700,7 +711,7 @@
 
         <!-- 📞 WHATSAPP FLOATING BUTTON (Minimalist Professional) -->
         <a 
-            href="https://wa.me/923001234567" 
+            :href="`https://wa.me/${whatsappConfig.whatsappNumber}`" 
             target="_blank" 
             class="fixed bottom-6 right-6 z-[45] bg-ink dark:bg-white text-white dark:text-black w-14 h-14 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center border border-white/10 group"
             aria-label="Contact us on WhatsApp"
@@ -741,6 +752,19 @@
                 // Cart Logic
                 const cart = ref([]);
 
+                // Configuration from server
+                const whatsappConfig = ref({
+                    whatsappNumber: '923268502690',
+                    supportEmail: 'support@alfmart.com',
+                    bank: {
+                        name: 'Meezan Bank',
+                        accountTitle: 'MUHAMMAD AHMAD',
+                        accountNumber: '02780113523044',
+                        iban: 'PK98MEZN0002780113523044',
+                        branch: 'Avian Chowk Br Lahore'
+                    }
+                });
+
                 // Data
                 const colorMap = {
                     'oxblood': '#4A2C2A',
@@ -758,58 +782,43 @@
                     {
                         id: 1,
                         name: "Genuine Leather Bifold Wallet",
-                        tagline: "Everyday Essential",
-                        price: 999,
-                        originalPrice: 1300,
-                        discount: 301,
-                        category: "bifold",
-                        image: "/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet Black.png",
-                        colors: ['black', 'brown', 'gray', 'lightgray'],
+                        tagline: "Timeless Classic",
+                        price: 2500,
+                        originalPrice: 3000,
+                        discount: 500,
+                        colors: ['oxblood', 'black', 'gray', 'lightgray'],
+                        image: "Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet Oxblood.png",
                         badge: "Best Seller",
-                        desc: "Compact, durable bifold crafted from full-grain leather. Organized for daily carry with 6 card slots, a divided cash pocket, and slim profile that fits comfortably in any pocket."
+                        category: "bifold",
+                        desc: "Hand-stitched from full-grain leather that develops a rich patina over time."
                     },
                     {
                         id: 2,
                         name: "Pebbled Leather Long Wallet",
-                        tagline: "Slim Executive Wallet",
-                        price: 1499,
-                        originalPrice: 2000,
-                        discount: 501,
-                        category: "long",
-                        image: "/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet Black.png",
+                        tagline: "Modern Elegance",
+                        price: 4500,
                         colors: ['black', 'brown', 'gray'],
-                        badge: "New Arrival",
-                        desc: "A refined long wallet with pebbled grain for extra resilience. Holds bills flat, stores up to 12 cards, and tucks neatly into jacket pockets — designed for organized professionals."
+                        image: "Public/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet Black.png",
+                        category: "long",
+                        desc: "Spacious design with dedicated slots for cards, cash, and phone."
                     },
                     {
                         id: 3,
                         name: "Vintage Leather Bifold Wallet",
-                        tagline: "Heritage Finish",
-                        price: 999,
-                        originalPrice: 1300,
-                        discount: 301,
+                        tagline: "Rugged Durability",
+                        price: 2200,
+                        originalPrice: 2800,
+                        discount: 600,
+                        colors: ['brown', 'black', 'gray'],
+                        image: "Public/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet Brown.jpg",
+                        badge: "New Arrival",
                         category: "bifold",
-                        image: "/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet Black.jpg",
-                        colors: ['black', 'brown', 'gray'],
-                        badge: "Limited Edition",
-                        desc: "Hand-finished with a gently distressed surface for immediate character. Robust construction and simple interior layout offer timeless style that improves with age."
+                        desc: "Distressed leather finish for a rugged, lived-in look from day one."
                     }
                 ]);
 
-                // Attempt to load products from data/products.json (non-destructive seed)
-                const loadProducts = async () => {
-                    try {
-                        const res = await fetch('/data/products.json');
-                        if (!res.ok) throw new Error('products.json not found');
-                        const data = await res.json();
-                        if (Array.isArray(data) && data.length) {
-                            products.value = data;
-                            console.log('Loaded products from /data/products.json (count:', data.length, ')');
-                        }
-                    } catch (err) {
-                        console.warn('Could not load /data/products.json — using embedded products.', err && err.message ? err.message : err);
-                    }
-                };
+                // Attempt to load products from Supabase
+                // Products are hardcoded above and don't need to be loaded
 
                 // Computed
                 const filteredProducts = computed(() => {
@@ -818,14 +827,18 @@
                 });
 
                 const cartCount = computed(() => cart.value.length);
-                const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + item.price, 0));
+                const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0));
                 
                 const isFormValid = computed(() => {
-                    return customerDetails.value.name.trim() && 
-                           customerDetails.value.email &&
-                           customerDetails.value.phone.trim() && 
-                           customerDetails.value.address.trim() && 
-                           customerDetails.value.city.trim();
+                    const email = customerDetails.value.email || '';
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return (
+                        customerDetails.value.name && customerDetails.value.name.trim() &&
+                        customerDetails.value.phone && customerDetails.value.phone.trim() &&
+                        email && emailRegex.test(email) &&
+                        customerDetails.value.address && customerDetails.value.address.trim() &&
+                        customerDetails.value.city && customerDetails.value.city.trim()
+                    );
                 });
 
                 // Methods
@@ -877,7 +890,7 @@
                     message += `Name: ${customerDetails.value.name}\n`;
                     message += `Total Amount: PKR ${cartTotal.value.toLocaleString()}\n\n`;
                     message += `Attaching my payment proof for verification.`;
-                    window.open(`https://wa.me/923001234567?text=${encodeURIComponent(message)}`, '_blank');
+                    window.open(`https://wa.me/${whatsappConfig.whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
                 };
 
                 const sendEmails = async () => {
@@ -886,6 +899,7 @@
                     const TEMPLATE_CUSTOMER = EMAILJS_CONFIG.templateCustomer;
 
                     const templateParams = {
+                        to_email: customerDetails.value.email,
                         order_id: orderId.value,
                         customer_name: customerDetails.value.name,
                         customer_email: customerDetails.value.email,
@@ -966,13 +980,36 @@
                     }
                 }
 
+                // Initialize theme from localStorage
+                const initializeTheme = () => {
+                    const savedTheme = localStorage.getItem('alfmart-theme');
+                    if (savedTheme === 'dark') {
+                        isDark.value = true;
+                        document.documentElement.classList.add('dark');
+                    } else if (savedTheme === 'light') {
+                        isDark.value = false;
+                        document.documentElement.classList.remove('dark');
+                    } else {
+                        // Default to system preference if no saved theme
+                        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                        isDark.value = prefersDark;
+                        if (prefersDark) {
+                            document.documentElement.classList.add('dark');
+                        } else {
+                            document.documentElement.classList.remove('dark');
+                        }
+                    }
+                };
+
                 // Existing Methods
                 const toggleTheme = () => {
                     isDark.value = !isDark.value;
                     if (isDark.value) {
                         document.documentElement.classList.add('dark');
+                        localStorage.setItem('alfmart-theme', 'dark');
                     } else {
                         document.documentElement.classList.remove('dark');
+                        localStorage.setItem('alfmart-theme', 'light');
                     }
                 };
 
@@ -982,10 +1019,20 @@
                 };
 
                 const addToCart = (product) => {
-                    cart.value.push({
-                        ...product,
-                        selectedColor: selectedColor.value
-                    });
+                    const actualColor = selectedColor.value || product.colors[0];
+                    const existingItem = cart.value.find(item => 
+                        item.id === product.id && item.selectedColor === actualColor
+                    );
+                    
+                    if (existingItem) {
+                        existingItem.quantity = (existingItem.quantity || 1) + 1;
+                    } else {
+                        cart.value.push({
+                            ...product,
+                            selectedColor: actualColor,
+                            quantity: 1
+                        });
+                    }
                     activeProduct.value = null;
                     cartOpen.value = true;
                 };
@@ -1012,22 +1059,47 @@
 
                 // Lifecycle
                 onMounted(() => {
-                    // Load products from seed file if present
-                    try { loadProducts(); } catch (e) { /* ignore */ }
-                    // Fetch EmailJS configuration from server
+
+                    // Initialize theme from localStorage FIRST
+                    initializeTheme();
+
+                    // Fetch configuration from server
                     fetch('/api/config')
                         .then(r => r.json())
                         .then(cfg => {
+                            // Load EmailJS config - BEFORE initializing
                             EMAILJS_CONFIG.publicKey = cfg.emailjsPublicKey;
                             EMAILJS_CONFIG.serviceId = cfg.serviceId;
                             EMAILJS_CONFIG.templateAdmin = cfg.templateAdmin;
                             EMAILJS_CONFIG.templateCustomer = cfg.templateCustomer;
+                            
+                            // Initialize EmailJS AFTER loading config
                             if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey) {
-                                try { emailjs.init(EMAILJS_CONFIG.publicKey); } catch (e) { /* ignore */ }
+                                try { 
+                                    emailjs.init(EMAILJS_CONFIG.publicKey);
+                                    console.log('EmailJS initialized successfully');
+                                } catch (e) { 
+                                    console.warn('EmailJS init error:', e && e.message ? e.message : e);
+                                }
                             }
-                            console.log('EMAILJS_CONFIG loaded:', EMAILJS_CONFIG);
+                            
+                            // Load contact & bank config
+                            whatsappConfig.value = {
+                                whatsappNumber: cfg.whatsappNumber || '923268502690',
+                                supportEmail: cfg.supportEmail || 'support@alfmart.com',
+                                supportPhone: cfg.supportPhone || '+92 300 1234567',
+                                bank: cfg.bank || {
+                                    name: 'Meezan Bank',
+                                    accountTitle: 'MUHAMMAD AHMAD',
+                                    accountNumber: '02780113523044',
+                                    iban: 'PK98MEZN0002780113523044',
+                                    branch: 'Avian Chowk Br Lahore'
+                                }
+                            };
+                            
+                            console.log('Configuration loaded:', { EMAILJS_CONFIG, whatsappConfig: whatsappConfig.value });
                         })
-                        .catch(err => console.warn('Could not load EmailJS config:', err));
+                        .catch(err => console.warn('Could not load configuration:', err));
 
                     // Lenis Smooth Scroll Setup
                     const lenis = new Lenis({
@@ -1058,7 +1130,7 @@
 
                 return {
                     isLoading, loadingVisible, scrolled, mobileMenuOpen, cartOpen, isDark,
-                    activeProduct, selectedColor, filter, cart, products,
+                    activeProduct, selectedColor, filter, cart, products, whatsappConfig,
                     filteredProducts, cartCount, cartTotal, colorMap,
                     toggleTheme, openProduct, addToCart, removeFromCart,
                     scrollToProducts, scrollToTop,

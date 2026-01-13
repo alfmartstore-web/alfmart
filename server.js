@@ -1,17 +1,21 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-const fs = require('fs');
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
+dotenv.config();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'Public')));
 
 // Orders persistence (dev-only JSON file)
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');
@@ -51,7 +55,7 @@ app.post('/api/orders', (req, res) => {
     }
 
     const orderNumber = generateOrderNumber();
-    const total = cart.reduce((sum, item) => sum + (item.price || 0) * (item.qty || 1), 0);
+    const total = cart.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
     const order = {
       id: orderNumber,
       order_number: orderNumber,
@@ -83,14 +87,44 @@ app.get('/api/orders', (req, res) => {
   res.json(orders);
 });
 
-// Expose non-sensitive EmailJS config to client
+// API to get products
+app.get('/api/products', (req, res) => {
+  const PRODUCTS_FILE = path.join(__dirname, 'data', 'products.json');
+  try {
+    if (fs.existsSync(PRODUCTS_FILE)) {
+      const raw = fs.readFileSync(PRODUCTS_FILE, 'utf8');
+      const products = JSON.parse(raw);
+      return res.json(products);
+    }
+    return res.status(404).json({ success: false, message: 'Products not found' });
+  } catch (e) {
+    console.warn('Could not read products file:', e && e.message ? e.message : e);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Expose configuration to client
 app.get('/api/config', (req, res) => {
   const config = {
+    // EmailJS Configuration
     emailjsPublicKey: process.env.EMAILJS_PUBLIC_KEY || null,
     serviceId: process.env.EMAILJS_SERVICE_ID || null,
     templateAdmin: process.env.EMAILJS_TEMPLATE_ADMIN || null,
     templateCustomer: process.env.EMAILJS_TEMPLATE_CUSTOMER || null,
-    contactEmail: process.env.CONTACT_EMAIL || null
+    
+    // Contact Information
+    whatsappNumber: process.env.WHATSAPP_NUMBER || '923268502690',
+    supportEmail: process.env.SUPPORT_EMAIL || 'support@alfmart.com',
+    supportPhone: process.env.SUPPORT_PHONE || '+92 300 1234567',
+    
+    // Bank Details
+    bank: {
+      name: process.env.BANK_NAME || 'Meezan Bank',
+      accountTitle: process.env.BANK_ACCOUNT_TITLE || 'MUHAMMAD AHMAD',
+      accountNumber: process.env.BANK_ACCOUNT_NUMBER || '02780113523044',
+      iban: process.env.BANK_IBAN || 'PK98MEZN0002780113523044',
+      branch: process.env.BANK_BRANCH || 'Avian Chowk Br Lahore'
+    }
   };
   res.json(config);
 });

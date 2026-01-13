@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" :class="isDark ? 'dark' : ''">
+<html lang="en" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,23 +8,53 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        canvas: 'var(--color-canvas)',
+                        ink: 'var(--color-ink)',
+                        paper: 'var(--color-paper)',
+                        leather: 'var(--color-leather)',
+                        whiskey: 'var(--color-whiskey)',
+                        gold: 'var(--color-gold)',
+                    },
+                    fontFamily: {
+                        serif: ['"Crimson Text"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Initialize theme from localStorage with proper key name
+        const savedTheme = localStorage.getItem('alfmart-theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F4F4F4; color: #1A1A1A; transition: background-color 0.5s ease, color 0.5s ease; }
-        .dark body { background-color: #0F0F0F; color: #E5E5E5; }
+        :root {
+            --color-canvas: #F4F4F4;
+            --color-ink: #1A1A1A;
+            --color-paper: #FFFFFF;
+            --color-leather: #4A2C2A;
+            --color-gold: #D4AF37;
+            --color-whiskey: #8B5A2B;
+        }
+        .dark {
+            --color-canvas: #0F0F0F;
+            --color-ink: #E5E5E5;
+            --color-paper: #111111;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--color-canvas); color: var(--color-ink); transition: background-color 0.5s ease, color 0.5s ease; }
         .font-serif { font-family: 'Crimson Text', serif; }
-        .text-gold { color: #D4AF37; }
-        .text-leather { color: #4A2C2A; }
-        .text-whiskey { color: #8B5A2B; }
-        .bg-leather { background-color: #4A2C2A; }
-        .bg-canvas { background-color: #F4F4F4; }
-        .bg-dark-canvas { background-color: #0F0F0F; }
-        .text-ink { color: #1A1A1A; }
-        .dark { background-color: #0F0F0F; color: #E5E5E5; }
-        .dark .bg-canvas { background-color: #0F0F0F; }
-        .dark .text-ink { color: #E5E5E5; }
-        .dark .bg-leather { background-color: #4A2C2A; }
-        .dark .text-gold { color: #D4AF37; }
         .bg-grain { background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E'); }
     </style>
 </head>
@@ -45,7 +75,7 @@
 
             <!-- Logo -->
             <div class="absolute left-1/2 transform -translate-x-1/2 text-center">
-                <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer" @click="scrollToTop" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">
+                <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer text-transparent bg-clip-text bg-gradient-to-r via-gold to-whiskey" :class="isDark ? 'from-white' : 'from-ink'" @click="goHome">
                     ALFMART
                 </h1>
             </div>
@@ -116,7 +146,7 @@
                     <div
                         v-for="product in paginatedProducts"
                         :key="product.id"
-                        class="bg-canvas dark:bg-dark-canvas rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer"
+                        class="bg-canvas rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer"
                         @click="viewProduct(product)"
                     >
                         <!-- Product Image -->
@@ -145,7 +175,7 @@
                                     <span class="font-serif text-xl font-bold" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">PKR {{ product.price.toLocaleString() }}</span>
                                     <span v-if="product.originalPrice" class="font-sans text-sm line-through" :style="!isDark ? {color: '#9CA3AF'} : {color: '#6B7280'}">PKR {{ product.originalPrice.toLocaleString() }}</span>
                                 </div>
-                                <button class="bg-ink dark:bg-white text-white dark:text-black px-4 py-2 font-sans text-xs font-bold tracking-widest uppercase hover:bg-leather transition-colors">
+                                <button @click.stop="viewProduct(product)" class="bg-ink dark:bg-white text-white dark:text-black px-4 py-2 font-sans text-xs font-bold tracking-widest uppercase hover:bg-leather transition-colors">
                                     View
                                 </button>
                             </div>
@@ -253,13 +283,63 @@
 
         <!-- Bottom Bar -->
         <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center text-xs font-sans text-white/40 tracking-wide">
-            <p>&copy; 2024 AlfMart. All Rights Reserved.</p>
+            <p>&copy; 2026 AlfMart. All Rights Reserved.</p>
             <div class="flex gap-6 mt-4 md:mt-0">
                 <a href="#" class="hover:text-white">Privacy Policy</a>
                 <a href="#" class="hover:text-white">Terms of Service</a>
             </div>
         </div>
     </footer>
+
+    <!-- PRODUCT MODAL -->
+    <div v-if="activeProduct" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" @click="activeProduct = null"></div>
+        <div class="relative bg-paper w-full max-w-4xl h-[80vh] md:h-auto overflow-y-auto md:overflow-visible grid grid-cols-1 md:grid-cols-2 gap-0 shadow-2xl animate-fade-up">
+            <button @click="activeProduct = null" class="absolute top-4 right-4 z-10 bg-white/50 rounded-full p-2"><i class="ph ph-x text-xl"></i></button>
+            
+            <!-- Gallery -->
+            <div class="bg-gray-100 relative h-[400px] md:h-[500px]">
+                <img :src="activeProduct.id === 1 ? `/Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet ${selectedColor === 'lightgray' ? 'Light Gray' : selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 2 ? `/Public/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 3 ? `/Public/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.jpg` : activeProduct.image" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Details -->
+            <div class="p-8 md:p-12 flex flex-col justify-center">
+                <p class="font-sans text-xs text-gold font-bold tracking-[0.2em] uppercase mb-2">{{ activeProduct.category }}</p>
+                <h2 class="font-serif text-3xl md:text-4xl text-ink dark:text-white mb-4">{{ activeProduct.name }}</h2>
+                <div class="mb-6">
+                    <p class="font-sans text-xl font-medium">PKR {{ activeProduct.price.toLocaleString() }}</p>
+                    <p v-if="activeProduct.originalPrice" class="font-sans text-sm text-gray-500 line-through">PKR {{ activeProduct.originalPrice.toLocaleString() }}</p>
+                    <p v-if="activeProduct.discount" class="font-sans text-sm text-green-600 font-bold">Save PKR {{ activeProduct.discount.toLocaleString() }}</p>
+                </div>
+                <p class="font-sans text-sm text-gray-500 leading-relaxed mb-8">{{ activeProduct.desc }}</p>
+
+                <!-- Color Select -->
+                <div class="mb-8">
+                    <p class="text-xs uppercase tracking-widest mb-3 font-bold">Select Leather</p>
+                    <div class="flex gap-3">
+                        <button 
+                            v-for="color in activeProduct.colors" 
+                            :key="color"
+                            @click="selectedColor = color"
+                            class="w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center"
+                            :class="selectedColor === color ? 'border-ink dark:border-white scale-110' : 'border-transparent'"
+                        >
+                            <div class="w-6 h-6 rounded-full" :style="{backgroundColor: colorMap[color]}"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3">
+                    <button @click="addToCart(activeProduct, selectedColor); activeProduct = null; openCheckout()" class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-xs font-bold tracking-[0.2em] uppercase hover:bg-leather transition-colors">
+                        Buy Now
+                    </button>
+                    <button @click="addToCart(activeProduct, selectedColor); activeProduct = null; cartOpen = true" class="w-full bg-transparent border border-ink dark:border-white text-ink dark:text-white py-4 font-sans text-xs font-bold tracking-[0.2em] uppercase hover:bg-ink hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors">
+                        Add to Bag
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- CART DRAWER -->
     <div 
@@ -291,7 +371,7 @@
                         <div class="flex-1">
                             <h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4>
                             <p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p>
-                            <p class="text-sm font-medium">PKR {{ item.price.toLocaleString() }}</p>
+                            <p class="text-sm font-medium">Qty: {{ item.quantity || 1 }} × PKR {{ item.price.toLocaleString() }}</p>
                         </div>
                         <button @click="removeFromCart(i)" class="text-gray-400 hover:text-red-500 self-start"><i class="ph ph-trash"></i></button>
                     </div>
@@ -319,7 +399,7 @@
 
     <!-- CHECKOUT OVERLAY -->
     <transition name="checkout">
-        <div v-if="isCheckoutOpen" class="fixed inset-0 z-[80] bg-canvas dark:bg-[#0a0a0a] overflow-y-auto">
+        <div v-if="isCheckoutOpen" class="fixed inset-0 z-[80] bg-canvas overflow-y-auto">
             <div class="max-w-3xl mx-auto min-h-screen py-12 px-6 flex flex-col">
                 
                 <!-- Header -->
@@ -348,11 +428,11 @@
                         <div v-else>
                             <p class="text-sm text-gray-500 mb-4">To finalize your order, please transfer <strong>PKR {{ cartTotal.toLocaleString() }}</strong> to the account below and send proof.</p>
                             <div class="bg-gray-100 dark:bg-[#222] p-4 text-left text-xs font-mono mb-4 text-gray-600 dark:text-gray-400">
-                                Meezan Bank<br>
-                                Title: MUHAMMAD AHMAD<br>
-                                AC: 02780113523044<br>
-                                IBAN: PK98MEZN0002780113523044<br>
-                                Branch: Avian Chowk Br Lahore
+                                {{ whatsappConfig.bank.name }}<br>
+                                Title: {{ whatsappConfig.bank.accountTitle }}<br>
+                                AC: {{ whatsappConfig.bank.accountNumber }}<br>
+                                IBAN: {{ whatsappConfig.bank.iban }}<br>
+                                Branch: {{ whatsappConfig.bank.branch }}
                             </div>
                             <button @click="sendProofWhatsApp" class="w-full bg-[#25D366] text-white py-3 font-sans text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#20bd5a]">
                                 <i class="ph ph-whatsapp-logo text-lg"></i> Send Payment Proof
@@ -405,11 +485,11 @@
                             </label>
                             
                             <div v-if="paymentMethod === 'bank'" class="ml-8 p-4 bg-gray-100 dark:bg-[#151515] text-xs font-mono text-gray-600 dark:text-gray-400 border-l-2 border-gold animate-fade-up">
-                                <p class="mb-1"><strong>Bank:</strong> Meezan Bank</p>
-                                <p class="mb-1"><strong>Title:</strong> MUHAMMAD AHMAD</p>
-                                <p class="mb-1"><strong>Account:</strong> 02780113523044</p>
-                                <p class="mb-1"><strong>IBAN:</strong> PK98MEZN0002780113523044</p>
-                                <p class="mb-1"><strong>Branch:</strong> Avian Chowk Br Lahore</p>
+                                <p class="mb-1"><strong>Bank:</strong> {{ whatsappConfig.bank.name }}</p>
+                                <p class="mb-1"><strong>Title:</strong> {{ whatsappConfig.bank.accountTitle }}</p>
+                                <p class="mb-1"><strong>Account:</strong> {{ whatsappConfig.bank.accountNumber }}</p>
+                                <p class="mb-1"><strong>IBAN:</strong> {{ whatsappConfig.bank.iban }}</p>
+                                <p class="mb-1"><strong>Branch:</strong> {{ whatsappConfig.bank.branch }}</p>
                             </div>
                         </div>
                     </div>
@@ -421,9 +501,9 @@
                             <div v-for="(item, i) in cart" :key="i" class="flex justify-between items-start text-sm">
                                 <div>
                                     <p class="font-serif text-ink dark:text-white">{{ item.name }}</p>
-                                    <p class="text-xs text-gray-500 capitalize">{{ item.selectedColor }}</p>
+                                    <p class="text-xs text-gray-500 capitalize">{{ item.selectedColor }} - Qty: {{ item.quantity || 1 }}</p>
                                 </div>
-                                <p class="font-mono text-gray-600 dark:text-gray-400">PKR {{ item.price.toLocaleString() }}</p>
+                                <p class="font-mono text-gray-600 dark:text-gray-400">PKR {{ ((item.quantity || 1) * item.price).toLocaleString() }}</p>
                             </div>
                         </div>
                         <div class="border-t border-gray-200 dark:border-gray-800 pt-4 mb-8">
@@ -456,7 +536,7 @@
                 const scrolled = ref(false);
                 const mobileMenuOpen = ref(false);
                 const cartOpen = ref(false);
-                const isDark = ref(false);
+                const isDark = ref(document.documentElement.classList.contains('dark'));
                 const activeProduct = ref(null);
                 const selectedColor = ref(null);
                 const filter = ref('all');
@@ -477,8 +557,20 @@
                 // Cart Logic
                 const cart = ref([]);
 
+                // Configuration from server
+                const whatsappConfig = ref({
+                    whatsappNumber: '923268502690',
+                    supportEmail: 'support@alfmart.com',
+                    bank: {
+                        name: 'Meezan Bank',
+                        accountTitle: 'MUHAMMAD AHMAD',
+                        accountNumber: '02780113523044',
+                        iban: 'PK98MEZN0002780113523044',
+                        branch: 'Avian Chowk Br Lahore'
+                    }
+                });
+
                 // Products page specific
-                const loading = ref(true);
                 const searchQuery = ref('');
                 const selectedCategory = ref('');
                 const sortBy = ref('name');
@@ -487,20 +579,6 @@
 
                 // Data
                 const colorMap = {
-                    'oxblood': '#4A2C2A',
-                    'black': '#1A1A1A',
-                    'tan': '#8B5A2B',
-                    'navy': '#1e293b',
-                    'vintage': '#8D6E63',
-                    'brown': '#8B4513',
-                    'red': '#DC143C',
-                    'gray': '#808080',
-                    'lightgray': '#D3D3D3'
-                };
-
-                const products = ref([]);
-
-                // Computed
                 const filteredProducts = computed(() => {
                     let filtered = products.value;
 
@@ -549,25 +627,35 @@
                 // Methods
                 const toggleTheme = () => {
                     isDark.value = !isDark.value;
-                    localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-                    document.documentElement.classList.toggle('dark', isDark.value);
+                    if (isDark.value) {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('alfmart-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('alfmart-theme', 'light');
+                    }
                 };
 
                 const scrollToTop = () => {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
 
+                const goHome = () => {
+                    window.location.href = 'index.html';
+                };
+
                 const addToCart = (product, color = null) => {
+                    const actualColor = color || selectedColor.value || product.colors[0];
                     const existingItem = cart.value.find(item => 
-                        item.id === product.id && item.selectedColor === color
+                        item.id === product.id && item.selectedColor === actualColor
                     );
                     
                     if (existingItem) {
-                        existingItem.quantity++;
+                        existingItem.quantity = (existingItem.quantity || 1) + 1;
                     } else {
                         cart.value.push({
                             ...product,
-                            selectedColor: color,
+                            selectedColor: actualColor,
                             quantity: 1
                         });
                     }
@@ -581,25 +669,13 @@
                     localStorage.setItem('cart', JSON.stringify(cart.value));
                 };
 
-                const loadProducts = async () => {
-                    try {
-                        const response = await fetch('/data/products.json');
-                        products.value = await response.json();
-                    } catch (error) {
-                        console.error('Failed to load products:', error);
-                        // Fallback to empty array
-                        products.value = [];
-                    }
-                    loading.value = false;
-                };
-
                 const getColorCode = (color) => {
                     return colorMap[color] || '#CCCCCC';
                 };
 
                 const viewProduct = (product) => {
-                    // For now, redirect to home page with product modal
-                    window.location.href = `index.html?product=${product.id}`;
+                    activeProduct.value = product;
+                    selectedColor.value = product.colors[0];
                 };
 
                 const openCheckout = () => {
@@ -614,11 +690,15 @@
                 };
 
                 const isFormValid = computed(() => {
-                    return customerDetails.value.name && 
-                           customerDetails.value.phone && 
-                           customerDetails.value.email && 
-                           customerDetails.value.address && 
-                           customerDetails.value.city;
+                    const email = customerDetails.value.email || '';
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return (
+                        customerDetails.value.name && customerDetails.value.name.trim() &&
+                        customerDetails.value.phone && customerDetails.value.phone.trim() &&
+                        email && emailRegex.test(email) &&
+                        customerDetails.value.address && customerDetails.value.address.trim() &&
+                        customerDetails.value.city && customerDetails.value.city.trim()
+                    );
                 });
 
                 const processOrder = () => {
@@ -634,53 +714,52 @@
                     checkoutStep.value = 'success';
                 };
 
-                const sendEmails = () => {
+                const sendEmails = async () => {
                     if (typeof emailjs === 'undefined') return;
                     
-                    const orderData = {
-                        orderId: orderId.value,
-                        customer: customerDetails.value,
-                        items: cart.value,
-                        total: cartTotal.value,
-                        paymentMethod: paymentMethod.value
+                    const templateParams = {
+                        to_email: customerDetails.value.email,
+                        order_id: orderId.value,
+                        customer_name: customerDetails.value.name,
+                        customer_email: customerDetails.value.email,
+                        customer_phone: customerDetails.value.phone,
+                        customer_address: `${customerDetails.value.address}, ${customerDetails.value.city}`,
+                        total_amount: `PKR ${cartTotal.value.toLocaleString()}`,
+                        payment_method: paymentMethod.value === 'cod' ? 'Cash on Delivery' : 'Bank Transfer',
+                        show_cod: paymentMethod.value === 'cod',
+                        show_bank: paymentMethod.value === 'bank',
+                        cart_items: cart.value.map(i => `${i.name} - ${i.selectedColor} - PKR ${i.price}`).join('\n')
                     };
                     
-                    // Send admin email
-                    emailjs.send(
-                        EMAILJS_CONFIG.serviceId,
-                        EMAILJS_CONFIG.templateAdmin,
-                        {
-                            to_email: 'admin@alfmart.com',
-                            order_id: orderId.value,
-                            customer_name: customerDetails.value.name,
-                            customer_email: customerDetails.value.email,
-                            customer_phone: customerDetails.value.phone,
-                            customer_address: customerDetails.value.address,
-                            customer_city: customerDetails.value.city,
-                            order_items: cart.value.map(item => `${item.name} (${item.selectedColor}) - PKR ${item.price}`).join('\n'),
-                            order_total: cartTotal.value,
-                            payment_method: paymentMethod.value
+                    try {
+                        // Send admin email
+                        if (EMAILJS_CONFIG.templateAdmin) {
+                            await emailjs.send(
+                                EMAILJS_CONFIG.serviceId,
+                                EMAILJS_CONFIG.templateAdmin,
+                                templateParams,
+                                EMAILJS_CONFIG.publicKey
+                            );
                         }
-                    );
-                    
-                    // Send customer email
-                    emailjs.send(
-                        EMAILJS_CONFIG.serviceId,
-                        EMAILJS_CONFIG.templateCustomer,
-                        {
-                            to_email: customerDetails.value.email,
-                            customer_name: customerDetails.value.name,
-                            order_id: orderId.value,
-                            order_items: cart.value.map(item => `${item.name} (${item.selectedColor}) - PKR ${item.price}`).join('\n'),
-                            order_total: cartTotal.value,
-                            payment_method: paymentMethod.value
+                        
+                        // Send customer email
+                        if (EMAILJS_CONFIG.templateCustomer) {
+                            await emailjs.send(
+                                EMAILJS_CONFIG.serviceId,
+                                EMAILJS_CONFIG.templateCustomer,
+                                templateParams,
+                                EMAILJS_CONFIG.publicKey
+                            );
                         }
-                    );
+                        console.log('Emails sent successfully');
+                    } catch (error) {
+                        console.error('Email send error:', error);
+                    }
                 };
 
                 const sendProofWhatsApp = () => {
                     const message = `Payment Proof for Order ${orderId.value}\nAmount: PKR ${cartTotal.value}\nPlease attach screenshot of bank transfer.`;
-                    const whatsappUrl = `https://wa.me/923001234567?text=${encodeURIComponent(message)}`;
+                    const whatsappUrl = `https://wa.me/${whatsappConfig.value.whatsappNumber}?text=${encodeURIComponent(message)}`;
                     window.open(whatsappUrl, '_blank');
                 };
 
@@ -698,30 +777,53 @@
                     cart.value = JSON.parse(savedCart);
                 }
 
-                // Load theme preference
-                const savedTheme = localStorage.getItem('theme');
-                if (savedTheme === 'dark') {
-                    isDark.value = true;
-                    document.documentElement.classList.add('dark');
-                }
-
                 // Lifecycle
                 onMounted(() => {
-                    loadProducts();
+                    // Fetch products from API
+                    fetch('/api/products')
+                        .then(res => res.json())
+                        .then(data => {
+                            products.value = data;
+                        })
+                        .catch(err => {
+                            console.error('Failed to load products:', err);
+                        });
 
-                    // Fetch EmailJS configuration from server
+                    // Fetch configuration from server
                     fetch('/api/config')
                         .then(r => r.json())
                         .then(cfg => {
+                            // Load EmailJS config - BEFORE initializing
                             EMAILJS_CONFIG.publicKey = cfg.emailjsPublicKey;
                             EMAILJS_CONFIG.serviceId = cfg.serviceId;
                             EMAILJS_CONFIG.templateAdmin = cfg.templateAdmin;
                             EMAILJS_CONFIG.templateCustomer = cfg.templateCustomer;
+                            
+                            // Initialize EmailJS AFTER loading config
                             if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey) {
-                                try { emailjs.init(EMAILJS_CONFIG.publicKey); } catch (e) { /* ignore */ }
+                                try { 
+                                    emailjs.init(EMAILJS_CONFIG.publicKey);
+                                    console.log('EmailJS initialized successfully');
+                                } catch (e) { 
+                                    console.warn('EmailJS init error:', e && e.message ? e.message : e);
+                                }
                             }
+                            
+                            // Load contact & bank config
+                            whatsappConfig.value = {
+                                whatsappNumber: cfg.whatsappNumber || '923268502690',
+                                supportEmail: cfg.supportEmail || 'support@alfmart.com',
+                                supportPhone: cfg.supportPhone || '+92 300 1234567',
+                                bank: cfg.bank || {
+                                    name: 'Meezan Bank',
+                                    accountTitle: 'MUHAMMAD AHMAD',
+                                    accountNumber: '02780113523044',
+                                    iban: 'PK98MEZN0002780113523044',
+                                    branch: 'Avian Chowk Br Lahore'
+                                }
+                            };
                         })
-                        .catch(err => console.warn('Could not load EmailJS config:', err));
+                        .catch(err => console.warn('Could not load configuration:', err));
 
                     // Navbar scroll effect
                     window.addEventListener('scroll', () => {
@@ -731,12 +833,13 @@
 
                 return {
                     scrolled, mobileMenuOpen, cartOpen, isDark,
-                    activeProduct, selectedColor, filter, cart,
-                    loading, searchQuery, selectedCategory, sortBy, currentPage, itemsPerPage,
+                    activeProduct, selectedColor, filter, cart, whatsappConfig,
+                    searchQuery, selectedCategory, sortBy, currentPage, itemsPerPage,
                     products, filteredProducts, totalPages, paginatedProducts, cartCount, cartTotal,
-                    isCheckoutOpen, checkoutStep, paymentMethod, orderId, customerDetails, isFormValid,
-                    toggleTheme, scrollToTop, addToCart, removeFromCart, loadProducts, getColorCode, viewProduct,
-                    openCheckout, processOrder, closeCheckout, sendProofWhatsApp, sendEmails
+                    isCheckoutOpen, checkoutStep, paymentMethod, orderId, customerDetails, isFormValid, colorMap,
+                    toggleTheme, scrollToTop, addToCart, removeFromCart, getColorCode,
+                    viewProduct, openCheckout, processOrder, closeCheckout, sendProofWhatsApp, sendEmails,
+                    goHome
                 };
             }
         }).mount('#app');

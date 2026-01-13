@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" :class="isDark ? 'dark' : ''">
+<html lang="en" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,153 +7,108 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        canvas: 'var(--color-canvas)',
+                        ink: 'var(--color-ink)',
+                        paper: 'var(--color-paper)',
+                        leather: 'var(--color-leather)',
+                        whiskey: 'var(--color-whiskey)',
+                        gold: 'var(--color-gold)',
+                    },
+                    fontFamily: {
+                        serif: ['"Crimson Text"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F4F4F4; color: #1A1A1A; transition: background-color 0.5s ease, color 0.5s ease; }
-        .dark body { background-color: #0F0F0F; color: #E5E5E5; }
+        :root {
+            --color-canvas: #F4F4F4;
+            --color-ink: #1A1A1A;
+            --color-paper: #FFFFFF;
+            --color-leather: #4A2C2A;
+            --color-gold: #D4AF37;
+            --color-whiskey: #8B5A2B;
+        }
+        .dark {
+            --color-canvas: #0F0F0F;
+            --color-ink: #E5E5E5;
+            --color-paper: #111111;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--color-canvas); color: var(--color-ink); transition: background-color 0.5s ease, color 0.5s ease; }
         .font-serif { font-family: 'Crimson Text', serif; }
-        .text-gold { color: #D4AF37; }
-        .text-leather { color: #4A2C2A; }
-        .text-whiskey { color: #8B5A2B; }
-        .bg-leather { background-color: #4A2C2A; }
-        .bg-canvas { background-color: #F4F4F4; }
-        .bg-dark-canvas { background-color: #0F0F0F; }
-        .text-ink { color: #1A1A1A; }
-        .dark { background-color: #0F0F0F; color: #E5E5E5; }
-        .dark .bg-canvas { background-color: #0F0F0F; }
-        .dark .text-ink { color: #E5E5E5; }
-        .dark .bg-leather { background-color: #4A2C2A; }
-        .dark .text-gold { color: #D4AF37; }
-        .bg-grain { background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E'); }
     </style>
 </head>
 <body class="bg-canvas text-ink" id="app">
     <!-- Header -->
-    <header class="fixed top-0 w-full z-30 px-6 py-6 transition-all duration-300 bg-canvas dark:bg-dark-canvas border border-gray-200 dark:border-gray-800" :class="{'py-4 shadow-sm': scrolled, 'py-8': !scrolled}">
+    <header class="fixed top-0 w-full z-30 px-6 py-6 transition-all duration-300 bg-canvas border-b border-gray-200 dark:border-gray-800">
         <div class="max-w-[1600px] mx-auto flex justify-between items-center">
-            <button @click="mobileMenuOpen = true" class="md:hidden" :class="isDark ? 'text-white' : 'text-ink'">
-                <i class="ph ph-list text-2xl"></i>
-            </button>
-
-            <!-- Desktop Nav -->
-            <nav class="hidden md:flex gap-8 font-sans text-xs tracking-[0.2em] uppercase font-medium" :class="isDark ? 'text-white' : 'text-ink'">
+            <nav class="hidden md:flex gap-8 font-sans text-xs tracking-[0.2em] uppercase font-medium">
                 <a href="products.html" class="hover:text-leather transition-colors">Shop</a>
                 <a href="about.html" class="hover:text-leather transition-colors">About</a>
                 <a href="contact.html" class="hover:text-leather transition-colors">Contact</a>
             </nav>
-
-            <!-- Logo -->
             <div class="absolute left-1/2 transform -translate-x-1/2 text-center">
-                <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer" @click="scrollToTop" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">
-                    ALFMART
-                </h1>
+                <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer text-transparent bg-clip-text bg-gradient-to-r via-gold to-whiskey" :class="isDark ? 'from-white' : 'from-ink'" @click="goHome">ALFMART</h1>
             </div>
-
-            <!-- Icons -->
             <div class="flex items-center gap-6">
-                <button @click="toggleTheme" class="hidden md:block hover:text-gold transition-colors" :class="isDark ? 'text-white' : 'text-ink'">
+                <button @click="toggleTheme" class="hover:text-gold transition-colors">
                     <i :class="isDark ? 'ph-sun' : 'ph-moon'" class="ph text-xl"></i>
                 </button>
-                <div class="relative cursor-pointer group" @click="cartOpen = true">
-                    <span class="text-xs font-sans uppercase tracking-widest mr-2 hidden md:inline-block group-hover:text-leather transition-colors" :class="isDark ? 'text-white' : 'text-ink'">Bag</span>
-                    <span class="absolute -top-2 -right-2 bg-leather text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-sans" v-if="cartCount > 0">{{ cartCount }}</span>
-                </div>
             </div>
         </div>
     </header>
 
-    <div v-show="isDark" class="fixed inset-0 pointer-events-none opacity-40 mix-blend-overlay bg-grain z-20 h-full w-full"></div>
-
     <!-- Main Content -->
-    <main>
-        <section class="pt-32 pb-24 px-6 md:px-20">
-            <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-16">
-                    <h1 class="font-serif text-4xl md:text-6xl mb-6" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">Returns & Exchange</h1>
-                    <p class="font-sans text-lg max-w-3xl mx-auto" :style="!isDark ? {color: '#4B5563'} : {color: '#D1D5DB'}">Your satisfaction is our priority. We offer a straightforward return and exchange process to ensure a confident shopping experience.</p>
-                </div>
+    <main class="pt-32 pb-24 px-6 md:px-20">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-16">
+                <p class="font-sans text-xs text-gold font-bold tracking-[0.2em] uppercase mb-4">Policy</p>
+                <h1 class="font-serif text-4xl md:text-5xl mb-6">Returns & Exchange</h1>
+            </div>
 
-                <div class="grid md:grid-cols-2 gap-12 items-start">
-                    <!-- Left: Policy -->
-                    <div class="bg-canvas dark:bg-dark-canvas rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-8">
-                        <h2 class="font-serif text-3xl mb-6" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">Our Policy</h2>
-                        <div class="space-y-6 text-gray-700 dark:text-gray-300">
-                            <p>We accept returns within <strong>7 days</strong> of the delivery date. To be eligible for a return, your item must be unused, in the same condition that you received it, and in its original packaging.</p>
-                            <p>Exchanges are available for different sizes or colors of the same product, subject to availability.</p>
-                            <div>
-                                <h4 class="font-bold mb-2 text-ink dark:text-white">Non-returnable items:</h4>
-                                <ul class="list-disc list-inside space-y-1 text-sm">
-                                    <li>Gift cards</li>
-                                    <li>Personalized or custom items</li>
-                                    <li>Items marked as 'Final Sale'</li>
-                                </ul>
-                            </div>
-                            <p>To initiate a return, please contact our support team with your order number and reason for return.</p>
-                        </div>
-                    </div>
-                    <!-- Right: Process -->
-                    <div class="bg-canvas dark:bg-dark-canvas rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-8">
-                        <h2 class="font-serif text-3xl mb-8" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">The Process</h2>
-                        <div class="space-y-8">
-                            <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-leather text-white font-serif text-xl">1</div>
-                                <div>
-                                    <h4 class="font-serif text-xl mb-1 text-ink dark:text-white">Initiate Return</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Contact us via email or WhatsApp with your order details.</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-leather text-white font-serif text-xl">2</div>
-                                <div>
-                                    <h4 class="font-serif text-xl mb-1 text-ink dark:text-white">Schedule Pickup</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">We'll arrange a free pickup from your address through our courier partners.</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-leather text-white font-serif text-xl">3</div>
-                                <div>
-                                    <h4 class="font-serif text-xl mb-1 text-ink dark:text-white">Inspection</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">Once we receive the item, we'll inspect it to ensure it meets the return criteria.</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-4 items-start">
-                                <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-leather text-white font-serif text-xl">4</div>
-                                <div>
-                                    <h4 class="font-serif text-xl mb-1 text-ink dark:text-white">Refund or Exchange</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400">A full refund is issued to your original payment method or a new item is dispatched.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="prose dark:prose-invert max-w-none font-sans text-gray-600 dark:text-gray-300 leading-relaxed">
+                <h3 class="font-serif text-2xl text-ink dark:text-white mt-8 mb-4">Our Guarantee</h3>
+                <p class="mb-6">We want you to be completely satisfied with your purchase. If for any reason you are not, we accept returns within 30 days of delivery for a full refund or exchange.</p>
+
+                <h3 class="font-serif text-2xl text-ink dark:text-white mt-8 mb-4">Conditions</h3>
+                <ul class="list-disc pl-5 mb-6 space-y-2">
+                    <li>Items must be unused and in original condition.</li>
+                    <li>Original tags and packaging must be intact.</li>
+                    <li>Proof of purchase is required.</li>
+                </ul>
+
+                <h3 class="font-serif text-2xl text-ink dark:text-white mt-8 mb-4">How to Initiate</h3>
+                <p class="mb-6">To start a return, please contact our support team via the <a href="contact.html" class="text-leather underline underline-offset-4">Contact Us</a> page with your Order ID. We will provide you with a shipping label and instructions.</p>
+
+                <div class="bg-paper p-6 border-l-4 border-gold mt-8">
+                    <p class="text-sm italic">Note: Personalized or custom-made items are final sale and cannot be returned unless defective.</p>
                 </div>
             </div>
-        </section>
+        </div>
     </main>
 
     <!-- Footer -->
     <footer class="bg-ink dark:bg-[#0a0a0a] text-[#E5E5E5] pt-24 pb-10 px-6 md:px-20 border-t border-gold/10">
         <div class="max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
-            <!-- Brand Column, Links, Help, Newsletter -->
             <div class="col-span-1 md:col-span-1">
                 <h2 class="font-serif text-3xl mb-6 text-gold">ALFMART</h2>
-                <p class="font-sans text-sm text-white/60 leading-relaxed mb-6">
-                    Your trusted destination for premium products. Connecting quality craftsmanship with modern shopping.
-                </p>
-                <div class="flex gap-4 text-white/60">
-                    <i class="ph ph-instagram-logo text-xl hover:text-gold cursor-pointer transition-colors"></i>
-                    <i class="ph ph-facebook-logo text-xl hover:text-gold cursor-pointer transition-colors"></i>
-                    <i class="ph ph-twitter-logo text-xl hover:text-gold cursor-pointer transition-colors"></i>
-                </div>
-            </div>
-            <div class="col-span-1">
-                <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-8 text-white">Shop</h4>
-                <ul class="space-y-4 font-sans text-sm text-white/60">
-                    <li><a href="products.html" class="hover:text-gold transition-colors">All Products</a></li>
-                    <li><a href="#" class="hover:text-gold transition-colors">New Arrivals</a></li>
-                    <li><a href="#" class="hover:text-gold transition-colors">Categories</a></li>
-                    <li><a href="#" class="hover:text-gold transition-colors">Gift Cards</a></li>
-                </ul>
+                <p class="font-sans text-sm text-white/60 leading-relaxed mb-6">Your trusted destination for premium products.</p>
             </div>
             <div class="col-span-1">
                 <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-8 text-white">Service</h4>
@@ -163,161 +118,37 @@
                     <li><a href="contact.html" class="hover:text-gold transition-colors">Contact Us</a></li>
                 </ul>
             </div>
-            <div class="col-span-1">
-                <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-8 text-white">The Journal</h4>
-                <p class="font-sans text-sm text-white/60 mb-6">Join for early access to new collections and exclusive offers.</p>
-                <div class="flex border-b border-white/20 pb-2">
-                    <input type="email" placeholder="Email Address" class="bg-transparent border-none outline-none w-full text-sm placeholder:text-white/30 focus:ring-0">
-                    <button class="text-xs uppercase tracking-widest text-gold hover:text-white transition-colors">Join</button>
-                </div>
-            </div>
         </div>
         <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center text-xs font-sans text-white/40 tracking-wide">
-            <p>&copy; 2024 AlfMart. All Rights Reserved.</p>
-            <div class="flex gap-6 mt-4 md:mt-0">
-                <a href="#" class="hover:text-white">Privacy Policy</a>
-                <a href="#" class="hover:text-white">Terms of Service</a>
-            </div>
+            <p>&copy; 2026 AlfMart. All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- MOBILE MENU OVERLAY -->
-    <div 
-        class="fixed inset-0 z-[60] transition-opacity duration-300 md:hidden"
-        :class="mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
-    >
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
-        <div 
-            class="absolute left-0 top-0 h-full w-80 bg-white dark:bg-[#111] shadow-2xl transform transition-transform duration-300 ease-out"
-            :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
-        >
-            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                <h3 class="font-serif text-2xl text-ink dark:text-white">Menu</h3>
-                <button @click="mobileMenuOpen = false"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <div class="p-6">
-                <nav class="space-y-6">
-                    <a href="products.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Shop</a>
-                    <a href="about.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">About</a>
-                    <a href="contact.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Contact</a>
-                    <a href="track-order.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Track Order</a>
-                    <a href="returns.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Returns</a>
-                </nav>
-                <div class="mt-12 pt-6 border-t border-gray-100 dark:border-gray-800">
-                    <button @click="toggleTheme(); mobileMenuOpen = false" class="flex items-center gap-3 w-full text-left text-ink dark:text-white">
-                        <i :class="isDark ? 'ph-sun' : 'ph-moon'" class="ph text-xl"></i>
-                        <span class="font-sans text-sm">{{ isDark ? 'Light' : 'Dark' }} Mode</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CART DRAWER, CHECKOUT OVERLAY (same as other pages) -->
-    <div 
-        class="fixed inset-0 z-[60] transition-opacity duration-300"
-        :class="cartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"
-    >
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cartOpen = false"></div>
-        <div 
-            class="absolute right-0 top-0 h-full w-full md:w-[450px] bg-white dark:bg-[#111] shadow-2xl transform transition-transform duration-500 ease-out flex flex-col"
-            :class="cartOpen ? 'translate-x-0' : 'translate-x-full'"
-        >
-            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                <h3 class="font-serif text-2xl text-ink dark:text-white">Your Selection</h3>
-                <button @click="cartOpen = false"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6">
-                <div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center text-center opacity-50">
-                    <i class="ph ph-shopping-bag text-4xl mb-4"></i>
-                    <p class="font-sans text-sm tracking-wide">Your bag is empty.</p>
-                </div>
-                <div v-else class="space-y-6">
-                    <div v-for="(item, i) in cart" :key="i" class="flex gap-4">
-                        <img :src="item.image" class="w-20 h-24 object-cover bg-gray-100">
-                        <div class="flex-1">
-                            <h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4>
-                            <p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p>
-                            <p class="text-sm font-medium">PKR {{ item.price.toLocaleString() }}</p>
-                        </div>
-                        <button @click="removeFromCart(i)" class="text-gray-400 hover:text-red-500 self-start"><i class="ph ph-trash"></i></button>
-                    </div>
-                </div>
-            </div>
-            <div class="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#151515]">
-                <div class="flex justify-between mb-4 font-sans text-sm">
-                    <span class="text-gray-500">Subtotal</span>
-                    <span class="font-bold">PKR {{ cartTotal.toLocaleString() }}</span>
-                </div>
-                <p class="text-[10px] text-gray-400 mb-6 text-center">Shipping & taxes calculated at checkout.</p>
-                <button 
-                    @click="openCheckout" 
-                    class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-leather hover:text-white transition-colors"
-                    :disabled="cart.length === 0"
-                    :class="{'opacity-50 cursor-not-allowed': cart.length === 0}"
-                >
-                    Secure Checkout
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        const { createApp, ref, computed, onMounted } = Vue;
+        const { createApp, ref, onMounted } = Vue;
 
         createApp({
             setup() {
-                const scrolled = ref(false);
-                const mobileMenuOpen = ref(false);
-                const cartOpen = ref(false);
-                const isDark = ref(false);
-                
-                const isCheckoutOpen = ref(false);
-                const cart = ref([]);
-                const cartCount = computed(() => cart.value.reduce((sum, item) => sum + item.quantity, 0));
-                const cartTotal = computed(() => cart.value.reduce((sum, item) => sum + (item.price * item.quantity), 0));
+                const isDark = ref(document.documentElement.classList.contains('dark'));
 
                 const toggleTheme = () => {
                     isDark.value = !isDark.value;
                     localStorage.setItem('theme', isDark.value ? 'dark' : 'light');
-                    document.documentElement.classList.toggle('dark', isDark.value);
+                    if (isDark.value) {
+                        document.documentElement.classList.add('dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                    }
                 };
 
-                const scrollToTop = () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                };
-                
-                const removeFromCart = (index) => {
-                    cart.value.splice(index, 1);
-                    localStorage.setItem('cart', JSON.stringify(cart.value));
-                };
-
-                const openCheckout = () => {
-                    isCheckoutOpen.value = true;
+                const goHome = () => {
+                    window.location.href = 'index.html';
                 };
 
                 onMounted(() => {
-                    const savedCart = localStorage.getItem('cart');
-                    if (savedCart) {
-                        cart.value = JSON.parse(savedCart);
-                    }
-
-                    const savedTheme = localStorage.getItem('theme');
-                    if (savedTheme === 'dark') {
-                        isDark.value = true;
-                        document.documentElement.classList.add('dark');
-                    }
-
-                    window.addEventListener('scroll', () => {
-                        scrolled.value = window.scrollY > 50;
-                    });
                 });
 
-                return {
-                    scrolled, mobileMenuOpen, cartOpen, isDark,
-                    cart, cartCount, cartTotal, isCheckoutOpen,
-                    toggleTheme, scrollToTop, removeFromCart, openCheckout
-                };
+                return { isDark, toggleTheme, goHome };
             }
         }).mount('#app');
     </script>
