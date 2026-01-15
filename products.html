@@ -606,11 +606,12 @@
 
                 // Lifecycle
                 onMounted(() => {
-                    // Fetch products from API
-                    fetch('/api/products')
+                    // Fetch products from JSON file
+                    fetch('/data/products.json')
                         .then(res => res.json())
                         .then(data => {
                             products.value = data;
+                            console.log('Products loaded:', data.length);
                         })
                         .catch(err => {
                             console.error('Failed to load products:', err);
