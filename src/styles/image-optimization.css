@@ -1,0 +1,109 @@
+/* Image Optimization and Loading States */
+
+/* Image Loading Placeholder */
+img {
+    display: block;
+}
+
+/* Lazy loaded images - fade in animation */
+img.loaded {
+    animation: imageLoad 0.4s ease-in-out;
+}
+
+@keyframes imageLoad {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Placeholder background while loading */
+img[data-src] {
+    background-color: #f0f0f0;
+    background-image: linear-gradient(
+        90deg,
+        #f0f0f0 0%,
+        #e0e0e0 50%,
+        #f0f0f0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Dark mode placeholder */
+.dark img[data-src] {
+    background-color: #2a2a2a;
+    background-image: linear-gradient(
+        90deg,
+        #2a2a2a 0%,
+        #3a3a3a 50%,
+        #2a2a2a 100%
+    );
+}
+
+/* Optimize images for performance */
+img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Critical images (hero) - load immediately */
+img[fetchpriority="high"] {
+    importance: high;
+}
+
+/* Below-the-fold images - load later */
+img[loading="lazy"] {
+    importance: low;
+}
+
+/* Prevent cumulative layout shift */
+img {
+    aspect-ratio: auto;
+}
+
+/* Optimize aspect ratios for common image containers */
+.aspect-square {
+    aspect-ratio: 1 / 1;
+}
+
+.aspect-\[4\/5\] {
+    aspect-ratio: 4 / 5;
+}
+
+/* Decoding optimization */
+img[decoding="async"] {
+    decoding: async;
+}
+
+/* Image containers with background color to prevent flash */
+.bg-\[\#EAEAEA\] {
+    background-color: #EAEAEA;
+    overflow: hidden;
+}
+
+.dark .bg-\[\#1a1a1a\] {
+    background-color: #1a1a1a;
+}
+
+/* Optimize text rendering while loading fonts */
+@font-face {
+    font-display: swap;
+}
+
+/* Reduce jank during image loading */
+img {
+    contains: layout style paint;
+}

@@ -32,6 +32,9 @@
     <!-- Theme Initialization -->
     <script src="./Public/theme-init.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
+    
+    <!-- Image Optimization CSS -->
+    <link rel="stylesheet" href="./src/styles/image-optimization.css">
     <style>
         :root {
             --color-canvas: #F4F4F4;
@@ -102,7 +105,7 @@
                                 <p>Our journey began with a small workshop, a handful of skilled artisans, and a commitment to using only the finest full-grain leather. We believe that a product should not only look good but also stand the test of time, developing character and personality with its owner.</p>
                             </div>
                         </div>
-                        <img src="./Public/heropageimage.jpg" alt="Craftsman working on leather" class="rounded-lg w-full h-64 md:h-full object-cover">
+                        <img src="./Public/heropageimage.jpg" alt="Craftsman working on leather" class="rounded-lg w-full h-64 md:h-full object-cover" loading="lazy">
                     </div>
                 </div>
 
@@ -141,7 +144,7 @@
         <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row justify-between items-center text-xs font-sans text-white/40 tracking-wide"><p>&copy; 2024 AlfMart. All Rights Reserved.</p><div class="flex gap-6 mt-4 md:mt-0"><a href="#" class="hover:text-white">Privacy Policy</a><a href="#" class="hover:text-white">Terms of Service</a></div></div>
     </footer>
     <div class="fixed inset-0 z-[60] transition-opacity duration-300 md:hidden" :class="mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"><div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false"></div><div class="absolute left-0 top-0 h-full w-80 bg-white dark:bg-[#111] shadow-2xl transform transition-transform duration-300 ease-out" :class="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"><div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center"><h3 class="font-serif text-2xl text-ink dark:text-white">Menu</h3><button @click="mobileMenuOpen = false"><i class="ph ph-x text-xl"></i></button></div><div class="p-6"><nav class="space-y-6"><a href="products.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Shop</a><a href="about.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">About</a><a href="contact.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Contact</a><a href="track-order.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Track Order</a><a href="returns.html" @click="mobileMenuOpen = false" class="block font-sans text-lg text-ink dark:text-white hover:text-leather transition-colors">Returns</a></nav><div class="mt-12 pt-6 border-t border-gray-100 dark:border-gray-800"><button @click="toggleTheme(); mobileMenuOpen = false" class="flex items-center gap-3 w-full text-left text-ink dark:text-white"><i :class="isDark ? 'ph-sun' : 'ph-moon'" class="ph text-xl"></i><span class="font-sans text-sm">{{ isDark ? 'Light' : 'Dark' }} Mode</span></button></div></div></div></div>
-    <div class="fixed inset-0 z-[60] transition-opacity duration-300" :class="cartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"><div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cartOpen = false"></div><div class="absolute right-0 top-0 h-full w-full md:w-[450px] bg-white dark:bg-[#111] shadow-2xl transform transition-transform duration-500 ease-out flex flex-col" :class="cartOpen ? 'translate-x-0' : 'translate-x-full'"><div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center"><h3 class="font-serif text-2xl text-ink dark:text-white">Your Selection</h3><button @click="cartOpen = false"><i class="ph ph-x text-xl"></i></button></div><div class="flex-1 overflow-y-auto p-6"><div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center text-center opacity-50"><i class="ph ph-shopping-bag text-4xl mb-4"></i><p class="font-sans text-sm tracking-wide">Your bag is empty.</p></div><div v-else class="space-y-6"><div v-for="(item, i) in cart" :key="i" class="flex gap-4"><img :src="item.image" class="w-20 h-24 object-cover bg-gray-100"><div class="flex-1"><h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4><p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p><p class="text-sm font-medium">PKR {{ item.price.toLocaleString() }}</p></div><button @click="removeFromCart(i)" class="text-gray-400 hover:text-red-500 self-start"><i class="ph ph-trash"></i></button></div></div></div><div class="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#151515]"><div class="flex justify-between mb-4 font-sans text-sm"><span class="text-gray-500">Subtotal</span><span class="font-bold">PKR {{ cartTotal.toLocaleString() }}</span></div><p class="text-[10px] text-gray-400 mb-6 text-center">Shipping & taxes calculated at checkout.</p><button @click="openCheckout" class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-leather hover:text-white transition-colors" :disabled="cart.length === 0" :class="{'opacity-50 cursor-not-allowed': cart.length === 0}">Secure Checkout</button></div></div></div>
+    <div class="fixed inset-0 z-[60] transition-opacity duration-300" :class="cartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'"><div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="cartOpen = false"></div><div class="absolute right-0 top-0 h-full w-full md:w-[450px] bg-white dark:bg-[#111] shadow-2xl transform transition-transform duration-500 ease-out flex flex-col" :class="cartOpen ? 'translate-x-0' : 'translate-x-full'"><div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center"><h3 class="font-serif text-2xl text-ink dark:text-white">Your Selection</h3><button @click="cartOpen = false"><i class="ph ph-x text-xl"></i></button></div><div class="flex-1 overflow-y-auto p-6"><div v-if="cart.length === 0" class="h-full flex flex-col items-center justify-center text-center opacity-50"><i class="ph ph-shopping-bag text-4xl mb-4"></i><p class="font-sans text-sm tracking-wide">Your bag is empty.</p></div><div v-else class="space-y-6"><div v-for="(item, i) in cart" :key="i" class="flex gap-4"><img :src="item.image" class="w-20 h-24 object-cover bg-gray-100" loading="lazy"><div class="flex-1"><h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4><p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p><p class="text-sm font-medium">PKR {{ item.price.toLocaleString() }}</p></div><button @click="removeFromCart(i)" class="text-gray-400 hover:text-red-500 self-start"><i class="ph ph-trash"></i></button></div></div></div><div class="p-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#151515]"><div class="flex justify-between mb-4 font-sans text-sm"><span class="text-gray-500">Subtotal</span><span class="font-bold">PKR {{ cartTotal.toLocaleString() }}</span></div><p class="text-[10px] text-gray-400 mb-6 text-center">Shipping & taxes calculated at checkout.</p><button @click="openCheckout" class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-leather hover:text-white transition-colors" :disabled="cart.length === 0" :class="{'opacity-50 cursor-not-allowed': cart.length === 0}">Secure Checkout</button></div></div></div>
     
     <script>
         const { createApp, ref, computed, onMounted } = Vue;
@@ -201,6 +204,60 @@
                 };
             }
         }).mount('#app');
+    </script>
+
+    <!-- Lazy Loading and Performance Optimization Script -->
+    <script>
+        // Intersection Observer for lazy loading images with better performance
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            // Load actual image
+                            const actualImg = new Image();
+                            actualImg.onload = () => {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                                img.classList.add('loaded');
+                            };
+                            actualImg.onerror = () => {
+                                // Fallback if image fails to load
+                                img.src = img.dataset.src;
+                            };
+                            actualImg.src = img.dataset.src;
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '100px'
+            });
+
+            // Observe all lazy images
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        } else {
+            // Fallback for browsers without IntersectionObserver
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            });
+        }
+
+        // Optimize scroll performance with debouncing
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // Scroll event handling
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
     </script>
 </body>
 </html>

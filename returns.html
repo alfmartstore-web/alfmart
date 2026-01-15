@@ -163,5 +163,59 @@
             }
         }).mount('#app');
     </script>
+
+    <!-- Lazy Loading and Performance Optimization Script -->
+    <script>
+        // Intersection Observer for lazy loading images with better performance
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            // Load actual image
+                            const actualImg = new Image();
+                            actualImg.onload = () => {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                                img.classList.add('loaded');
+                            };
+                            actualImg.onerror = () => {
+                                // Fallback if image fails to load
+                                img.src = img.dataset.src;
+                            };
+                            actualImg.src = img.dataset.src;
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '100px'
+            });
+
+            // Observe all lazy images
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        } else {
+            // Fallback for browsers without IntersectionObserver
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            });
+        }
+
+        // Optimize scroll performance with debouncing
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // Scroll event handling
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    </script>
 </body>
 </html>

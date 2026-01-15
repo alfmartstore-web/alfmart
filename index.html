@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" as="style">
+    
     <!-- Icons: Phosphor -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -53,6 +57,9 @@
 
     <!-- Theme Initialization -->
     <script src="./Public/theme-init.js"></script>
+
+    <!-- Image Optimization CSS -->
+    <link rel="stylesheet" href="./src/styles/image-optimization.css">
 
     <style>
         /* Base Luxury Styles */
@@ -252,6 +259,8 @@
                     src="./Public/heropageimage.jpg" 
                     alt="Premium marketplace showcasing quality products" 
                     class="absolute inset-0 w-full h-full object-cover z-0 img-zoom"
+                    fetchpriority="high"
+                    decoding="async"
                 >
                 
                 <!-- Dark Overlay for Text Readability -->
@@ -364,6 +373,7 @@
                             <img 
                                 :src="product.image" 
                                 class="w-full h-full object-cover img-zoom grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+                                loading="lazy"
                             >
                             <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                 <button class="bg-white text-ink px-6 py-3 font-sans text-xs uppercase tracking-widest hover:bg-leather hover:text-white transition-colors">
@@ -396,7 +406,7 @@
 
             <!-- 5. VISUAL INTERLUDE (Materials) -->
             <section id="materials" class="h-[60vh] relative flex items-center justify-center overflow-hidden">
-                <img src="/newasset.png" class="absolute inset-0 w-full h-full object-cover">
+                <img src="/newasset.png" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
                 <div class="absolute inset-0 bg-black/50"></div>
                 <div class="relative z-10 text-center text-white px-6">
                     <p class="font-sans text-xs font-bold tracking-[0.4em] uppercase mb-4 text-gold">The Workshop</p>
@@ -535,7 +545,7 @@
 
                     <div v-else class="space-y-6">
                         <div v-for="(item, i) in cart" :key="i" class="flex gap-4">
-                            <img :src="item.image" class="w-20 h-24 object-cover bg-gray-100">
+                            <img :src="item.image" class="w-20 h-24 object-cover bg-gray-100" loading="lazy">
                             <div class="flex-1">
                                 <h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4>
                                 <p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p>
@@ -897,15 +907,22 @@
 
                     // Lenis Smooth Scroll Setup
                     const lenis = new Lenis({
-                        duration: 1.2,
+                        duration: 0.8,
                         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                         direction: 'vertical',
                         gestureDirection: 'vertical',
                         smooth: true,
+                        wheelMultiplier: 1,
+                        touchMultiplier: 1.5,
                     });
 
+                    // Optimize RAF loop - throttle to 60fps
+                    let lastTime = 0;
                     function raf(time) {
-                        lenis.raf(time);
+                        if (time - lastTime > 16) { // ~60fps
+                            lenis.raf(time);
+                            lastTime = time;
+                        }
                         requestAnimationFrame(raf);
                     }
                     requestAnimationFrame(raf);
@@ -933,5 +950,73 @@
             }
         }).mount('#app');
     </script>
-</body>
-</html>
+
+    <!-- Lazy Loading and Performance Optimization Script -->
+    <script>
+        // Intersection Observer for lazy loading images with better performance
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            // Load actual image
+                            const actualImg = new Image();
+                            actualImg.onload = () => {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                                img.classList.add('loaded');
+                            };
+                            actualImg.onerror = () => {
+                                // Fallback if image fails to load
+                                img.src = img.dataset.src;
+                            };
+                            actualImg.src = img.dataset.src;
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '100px'
+            });
+
+            // Observe all lazy images
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        } else {
+            // Fallback for browsers without IntersectionObserver
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            });
+        }
+
+        // Optimize scroll performance with debouncing
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // Scroll event handling
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+
+        // Preload critical resources
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', preloadCriticalResources);
+        } else {
+            preloadCriticalResources();
+        }
+
+        function preloadCriticalResources() {
+            // Preload hero image
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'image';
+            link.href = './Public/heropageimage.jpg';
+            document.head.appendChild(link);
+        }
+    </script>
