@@ -204,7 +204,7 @@
                             <button 
                                 @click="processOrder" 
                                 class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-xs font-bold tracking-[0.2em] uppercase hover:bg-leather transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-lg"
-                                :disabled="!isFormValid"
+                                :disabled="!isFormValid || cart.length === 0"
                             >
                                 Place Order
                             </button>
@@ -272,9 +272,20 @@
 
                 const isFormValid = computed(() => {
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    return customerDetails.value.name && customerDetails.value.phone && 
+                    const isValid = customerDetails.value.name && 
+                           customerDetails.value.phone && 
                            emailRegex.test(customerDetails.value.email) && 
-                           customerDetails.value.address && customerDetails.value.city;
+                           customerDetails.value.address && 
+                           customerDetails.value.city;
+                    console.log('Form validation:', {
+                        name: !!customerDetails.value.name,
+                        phone: !!customerDetails.value.phone,
+                        email: emailRegex.test(customerDetails.value.email),
+                        address: !!customerDetails.value.address,
+                        city: !!customerDetails.value.city,
+                        isValid: isValid
+                    });
+                    return isValid;
                 });
 
                 const processOrder = async () => {
