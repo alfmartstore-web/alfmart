@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" :class="isDark ? 'dark' : ''">
+<html lang="en" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,23 +8,53 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        canvas: 'var(--color-canvas)',
+                        ink: 'var(--color-ink)',
+                        paper: 'var(--color-paper)',
+                        leather: 'var(--color-leather)',
+                        whiskey: 'var(--color-whiskey)',
+                        gold: 'var(--color-gold)',
+                    },
+                    fontFamily: {
+                        serif: ['"Crimson Text"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Initialize theme from localStorage with proper key name (consistent with other pages)
+        const savedTheme = localStorage.getItem('alfmart-theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F4F4F4; color: #1A1A1A; transition: background-color 0.5s ease, color 0.5s ease; }
-        .dark body { background-color: #0F0F0F; color: #E5E5E5; }
+        :root {
+            --color-canvas: #F4F4F4;
+            --color-ink: #1A1A1A;
+            --color-paper: #FFFFFF;
+            --color-leather: #4A2C2A;
+            --color-gold: #D4AF37;
+            --color-whiskey: #8B5A2B;
+        }
+        .dark {
+            --color-canvas: #0F0F0F;
+            --color-ink: #E5E5E5;
+            --color-paper: #111111;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--color-canvas); color: var(--color-ink); transition: background-color 0.5s ease, color 0.5s ease; }
         .font-serif { font-family: 'Crimson Text', serif; }
-        .text-gold { color: #D4AF37; }
-        .text-leather { color: #4A2C2A; }
-        .text-whiskey { color: #8B5A2B; }
-        .bg-leather { background-color: #4A2C2A; }
-        .bg-canvas { background-color: #F4F4F4; }
-        .bg-dark-canvas { background-color: #0F0F0F; }
-        .text-ink { color: #1A1A1A; }
-        .dark { background-color: #0F0F0F; color: #E5E5E5; }
-        .dark .bg-canvas { background-color: #0F0F0F; }
-        .dark .text-ink { color: #E5E5E5; }
-        .dark .bg-leather { background-color: #4A2C2A; }
-        .dark .text-gold { color: #D4AF37; }
         .bg-grain { background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22 opacity=%220.05%22/%3E%3C/svg%3E'); }
     </style>
 </head>
@@ -39,11 +69,13 @@
                 <a href="products.html" class="hover:text-leather transition-colors">Shop</a>
                 <a href="about.html" class="hover:text-leather transition-colors">About</a>
                 <a href="contact.html" class="hover:text-leather transition-colors">Contact</a>
+                <a href="track-order.html" class="hover:text-leather transition-colors">Track Order</a>
+                <a href="returns.html" class="hover:text-leather transition-colors">Returns</a>
             </nav>
             <div class="absolute left-1/2 transform -translate-x-1/2 text-center">
-                <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer" @click="scrollToTop" :style="!isDark ? {color: '#1A1A1A'} : {color: '#FFFFFF'}">
+                <a href="index.html" class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer text-transparent bg-clip-text bg-gradient-to-r via-gold to-whiskey inline-block" :class="isDark ? 'from-white' : 'from-ink'">
                     ALFMART
-                </h1>
+                </a>
             </div>
             <div class="flex items-center gap-6">
                 <button @click="toggleTheme" class="hidden md:block hover:text-gold transition-colors" :class="isDark ? 'text-white' : 'text-ink'">
@@ -114,14 +146,14 @@
                              <i class="ph ph-whatsapp-logo text-2xl text-gold mt-1"></i>
                             <div>
                                 <h4 class="font-serif text-xl mb-2 text-ink dark:text-white">WhatsApp</h4>
-                                <p class="text-gray-600 dark:text-gray-400">+92 300 1234567</p>
+                                <p class="text-gray-600 dark:text-gray-400">03268502690</p>
                             </div>
                         </div>
                          <div class="bg-canvas dark:bg-dark-canvas rounded-lg shadow-sm border border-gray-200 dark:border-gray-800 p-8 flex gap-6 items-start">
                              <i class="ph ph-envelope-simple text-2xl text-gold mt-1"></i>
                             <div>
                                 <h4 class="font-serif text-xl mb-2 text-ink dark:text-white">General Inquiries</h4>
-                                <p class="text-gray-600 dark:text-gray-400">support@alfmart.com</p>
+                                <p class="text-gray-600 dark:text-gray-400">alfmart.store@gmail.com</p>
                             </div>
                         </div>
                     </div>

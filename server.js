@@ -15,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+// Serve static files from root directory (HTML pages) and Public directory (assets)
+app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'Public')));
 
 // Orders persistence (dev-only JSON file)
@@ -114,8 +116,8 @@ app.get('/api/config', (req, res) => {
     
     // Contact Information
     whatsappNumber: process.env.WHATSAPP_NUMBER || '923268502690',
-    supportEmail: process.env.SUPPORT_EMAIL || 'support@alfmart.com',
-    supportPhone: process.env.SUPPORT_PHONE || '+92 300 1234567',
+    supportEmail: process.env.SUPPORT_EMAIL || 'alfmart.store@gmail.com',
+    supportPhone: process.env.SUPPORT_PHONE || '03268502690',
     
     // Bank Details
     bank: {

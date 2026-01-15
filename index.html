@@ -66,14 +66,44 @@
 
         /* Hide Scrollbar but allow scroll */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
             background: #D4AF37;
-            border-radius: 3px;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C9A227;
+        }
+
+        /* Checkout Scrollable Area - Light Mode */
+        .checkout-scroll {
+            scrollbar-color: #D4AF37 transparent;
+            scrollbar-width: thin;
+        }
+        
+        .checkout-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .checkout-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .checkout-scroll::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 4px;
+            border: 2px solid #F4F4F4;
+        }
+        .checkout-scroll::-webkit-scrollbar-thumb:hover {
+            background: #C9A227;
+        }
+
+        /* Dark Mode Scrollbar */
+        .dark .checkout-scroll::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border: 2px solid #111;
         }
 
         /* Text Selection */
@@ -173,11 +203,13 @@
                     <a href="products.html" class="hover:text-leather transition-colors">Shop</a>
                     <a href="about.html" class="hover:text-leather transition-colors">About</a>
                     <a href="contact.html" class="hover:text-leather transition-colors">Contact</a>
+                    <a href="track-order.html" class="hover:text-leather transition-colors">Track Order</a>
+                    <a href="returns.html" class="hover:text-leather transition-colors">Returns</a>
                 </nav>
 
                 <!-- Logo -->
                 <div class="absolute left-1/2 transform -translate-x-1/2 text-center">
-                    <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer text-transparent bg-clip-text bg-gradient-to-r from-white via-gold to-whiskey" @click="scrollToTop">
+                    <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer text-transparent bg-clip-text bg-gradient-to-r via-gold to-whiskey" :class="isDark ? 'from-white' : 'from-ink'" @click="goHome">
                         ALFMART
                     </h1>
                 </div>
@@ -202,6 +234,8 @@
                 <a href="products.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">Shop</a>
                 <a href="about.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">About</a>
                 <a href="contact.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">Contact</a>
+                <a href="track-order.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">Track Order</a>
+                <a href="returns.html" @click="mobileMenuOpen = false" class="hover:text-gold transition-colors">Returns</a>
             </nav>
         </div>
 
@@ -211,7 +245,7 @@
             <section class="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
                 <!-- Background Image -->
                 <img 
-                    src="Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet Brown.png" 
+                    src="/heropageimage.jpg" 
                     alt="Premium marketplace showcasing quality products" 
                     class="absolute inset-0 w-full h-full object-cover z-0 img-zoom"
                 >
@@ -233,15 +267,13 @@
                     </p>
                     <div class="animate-fade-up flex items-center justify-center gap-4" style="animation-delay: 300ms;">
                         <a 
-                            href="#products" 
-                            @click.prevent="scrollToProducts" 
+                            href="products.html" 
                             class="inline-block btn-magnetic bg-white text-ink px-12 py-4 font-sans text-xs tracking-[0.2em] uppercase transition-all duration-300 hover:bg-gold hover:text-white border-none shadow-2xl cursor-pointer no-underline"
                         >
                             Explore Products
                         </a>
                         <a 
-                            href="#philosophy" 
-                            @click.prevent="scrollToProducts" 
+                            href="about.html" 
                             class="inline-block font-sans text-sm text-white/90 underline underline-offset-4 hover:text-gold transition-colors"
                         >
                             Our Promise
@@ -522,148 +554,6 @@
             </div>
         </div>
 
-        <!-- CHECKOUT OVERLAY (New Feature) -->
-        <transition name="checkout">
-            <div v-if="isCheckoutOpen" class="fixed inset-0 z-[80] bg-canvas dark:bg-[#0a0a0a] overflow-y-auto">
-                <div class="max-w-3xl mx-auto min-h-screen py-12 px-6 flex flex-col">
-                    
-                    <!-- Header -->
-                    <div class="flex justify-between items-center mb-10 pb-6 border-b border-gray-200 dark:border-gray-800">
-                        <h2 class="font-serif text-3xl md:text-4xl text-ink dark:text-white">Secure Checkout</h2>
-                        <button @click="isCheckoutOpen = false" class="text-sm uppercase tracking-widest hover:text-leather">Close</button>
-                    </div>
-
-                    <!-- SUCCESS STATE -->
-                    <div v-if="checkoutStep === 'success'" class="flex-1 flex flex-col items-center justify-center text-center animate-fade-up">
-                        <div class="w-20 h-20 rounded-full border-2 border-gold flex items-center justify-center text-gold text-4xl mb-6">
-                            <i class="ph ph-check"></i>
-                        </div>
-                        <h3 class="font-serif text-4xl text-ink dark:text-white mb-2">Order Confirmed</h3>
-                        <p class="font-sans text-sm tracking-widest uppercase text-gray-500 mb-8">Order #{{ orderId }}</p>
-                        
-                        <div class="bg-white dark:bg-[#111] p-8 max-w-md w-full shadow-lg border-t-4 border-leather mb-8">
-                            <p class="font-sans text-sm leading-relaxed mb-4 text-gray-600 dark:text-gray-300">
-                                Thank you, <span class="font-bold text-ink dark:text-white">{{ customerDetails.name }}</span>.
-                            </p>
-                            
-                            <div v-if="paymentMethod === 'cod'">
-                                <p class="text-sm text-gray-500">Your order has been placed successfully via Cash on Delivery. Our team will verify your order via phone shortly.</p>
-                            </div>
-
-                            <div v-else>
-                                <p class="text-sm text-gray-500 mb-4">To finalize your order, please transfer <strong>PKR {{ cartTotal.toLocaleString() }}</strong> to the account below and send proof.</p>
-                                <div class="bg-gray-100 dark:bg-[#222] p-4 text-left text-xs font-mono mb-4 text-gray-600 dark:text-gray-400">
-                                    {{ whatsappConfig.bank.name }}<br>
-                                    Title: {{ whatsappConfig.bank.accountTitle }}<br>
-                                    AC: {{ whatsappConfig.bank.accountNumber }}<br>
-                                    IBAN: {{ whatsappConfig.bank.iban }}<br>
-                                    Branch: {{ whatsappConfig.bank.branch }}
-                                </div>
-                                <button @click="sendProofWhatsApp" class="w-full bg-[#25D366] text-white py-3 font-sans text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#20bd5a]">
-                                    <i class="ph ph-whatsapp-logo text-lg"></i> Send Payment Proof
-                                </button>
-                            </div>
-                        </div>
-
-                        <button @click="closeCheckout" class="text-xs uppercase tracking-widest underline underline-offset-4 hover:text-leather">Return to Boutique</button>
-                    </div>
-
-                    <!-- FORM STATE -->
-                    <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <!-- Left: Form -->
-                        <div>
-                            <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-6 text-gold">01. Shipping Details</h4>
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Full Name</label>
-                                    <input v-model="customerDetails.name" type="text" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors text-ink dark:text-white" placeholder="e.g. Ali Khan">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Phone Number</label>
-                                    <input v-model="customerDetails.phone" type="tel" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors text-ink dark:text-white" placeholder="0300-1234567">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Email</label>
-                                    <input v-model="customerDetails.email" type="email" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors text-ink dark:text-white" placeholder="you@example.com">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Delivery Address</label>
-                                    <input v-model="customerDetails.address" type="text" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors text-ink dark:text-white" placeholder="House #, Street, Area">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">City</label>
-                                    <input v-model="customerDetails.city" type="text" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors text-ink dark:text-white" placeholder="Lahore">
-                                </div>
-                            </div>
-
-                            <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mt-12 mb-6 text-gold">02. Payment Method</h4>
-                            <div class="space-y-4">
-                                <label class="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-800 cursor-pointer hover:border-leather transition-colors group" :class="{'border-leather bg-leather/5': paymentMethod === 'cod'}">
-                                    <div class="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
-                                        <div v-if="paymentMethod === 'cod'" class="w-2 h-2 rounded-full bg-leather"></div>
-                                    </div>
-                                    <input type="radio" value="cod" v-model="paymentMethod" class="hidden">
-                                    <div>
-                                        <span class="block font-serif text-lg text-ink dark:text-white">Cash on Delivery</span>
-                                        <span class="text-xs text-gray-500">Pay via cash upon receipt.</span>
-                                    </div>
-                                </label>
-
-                                <label class="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-800 cursor-pointer hover:border-leather transition-colors group" :class="{'border-leather bg-leather/5': paymentMethod === 'bank'}">
-                                    <div class="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
-                                        <div v-if="paymentMethod === 'bank'" class="w-2 h-2 rounded-full bg-leather"></div>
-                                    </div>
-                                    <input type="radio" value="bank" v-model="paymentMethod" class="hidden">
-                                    <div>
-                                        <span class="block font-serif text-lg text-ink dark:text-white">Bank Transfer</span>
-                                        <span class="text-xs text-gray-500">Meezan Bank. Send proof via WhatsApp.</span>
-                                    </div>
-                                </label>
-                                
-                                <div v-if="paymentMethod === 'bank'" class="ml-8 p-4 bg-gray-100 dark:bg-[#151515] text-xs font-mono text-gray-600 dark:text-gray-400 border-l-2 border-gold animate-fade-up">
-                                    <p class="mb-1"><strong>Bank:</strong> {{ whatsappConfig.bank.name }}</p>
-                                    <p class="mb-1"><strong>Title:</strong> {{ whatsappConfig.bank.accountTitle }}</p>
-                                    <p class="mb-1"><strong>Account:</strong> {{ whatsappConfig.bank.accountNumber }}</p>
-                                    <p class="mb-1"><strong>IBAN:</strong> {{ whatsappConfig.bank.iban }}</p>
-                                    <p class="mb-1"><strong>Branch:</strong> {{ whatsappConfig.bank.branch }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right: Summary -->
-                        <div class="bg-gray-50 dark:bg-[#111] p-8 h-fit">
-                            <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">Order Summary</h4>
-                            <div class="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
-                                <div v-for="(item, i) in cart" :key="i" class="flex justify-between items-start text-sm">
-                                    <div>
-                                        <p class="font-serif text-ink dark:text-white">{{ item.name }}</p>
-                                        <p class="text-xs text-gray-500 capitalize">{{ item.selectedColor }} - Qty: {{ item.quantity || 1 }}</p>
-                                    </div>
-                                    <p class="font-mono text-gray-600 dark:text-gray-400">PKR {{ ((item.quantity || 1) * item.price).toLocaleString() }}</p>
-                                </div>
-                            </div>
-                            <div class="border-t border-gray-200 dark:border-gray-800 pt-4 mb-8">
-                                <div class="flex justify-between items-center text-lg font-bold text-ink dark:text-white">
-                                    <span>Total</span>
-                                    <span>PKR {{ cartTotal.toLocaleString() }}</span>
-                                </div>
-                                <p class="text-[10px] text-gray-400 mt-2 text-right">Includes all taxes & delivery</p>
-                            </div>
-                            
-                            <button 
-                                @click="processOrder" 
-                                class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-xs font-bold tracking-[0.2em] uppercase hover:bg-leather transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                :disabled="!isFormValid"
-                            >
-                                Place Order
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </transition>
-
         <!-- PRODUCT MODAL -->
         <div v-if="activeProduct" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/80 backdrop-blur-md" @click="activeProduct = null"></div>
@@ -672,7 +562,7 @@
                 
                 <!-- Gallery -->
                 <div class="bg-gray-100 relative h-[400px] md:h-[500px]">
-                    <img :src="activeProduct.id === 1 ? `Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet ${selectedColor === 'lightgray' ? 'Light Gray' : selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 2 ? `Public/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 3 ? `Public/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.jpg` : activeProduct.image" class="w-full h-full object-cover">
+                    <img :src="activeProduct.id === 1 ? `/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet ${selectedColor === 'lightgray' ? 'Light Gray' : selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 2 ? `/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.png` : activeProduct.id === 3 ? `/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet ${selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}.jpg` : activeProduct.image" class="w-full h-full object-cover">
                 </div>
 
                 <!-- Details -->
@@ -722,7 +612,7 @@
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, nextTick } = Vue;
+        const { createApp, ref, computed, onMounted, nextTick, watch } = Vue;
 
         createApp({
             setup() {
@@ -736,26 +626,18 @@
                 const selectedColor = ref(null);
                 const filter = ref('all');
                 
-                // Checkout State
-                const isCheckoutOpen = ref(false);
-                const checkoutStep = ref('form'); // form | success
-                const paymentMethod = ref('cod');
-                const orderId = ref(null);
-                const customerDetails = ref({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    address: '',
-                    city: ''
-                });
-
                 // Cart Logic
                 const cart = ref([]);
+
+                // Watch cart for persistence
+                watch(cart, (newCart) => {
+                    localStorage.setItem('cart', JSON.stringify(newCart));
+                }, { deep: true });
 
                 // Configuration from server
                 const whatsappConfig = ref({
                     whatsappNumber: '923268502690',
-                    supportEmail: 'support@alfmart.com',
+                    supportEmail: 'alfmart.store@gmail.com',
                     bank: {
                         name: 'Meezan Bank',
                         accountTitle: 'MUHAMMAD AHMAD',
@@ -782,38 +664,41 @@
                     {
                         id: 1,
                         name: "Genuine Leather Bifold Wallet",
-                        tagline: "Timeless Classic",
-                        price: 2500,
-                        originalPrice: 3000,
-                        discount: 500,
-                        colors: ['oxblood', 'black', 'gray', 'lightgray'],
-                        image: "Public/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet Oxblood.png",
+                        tagline: "Everyday Essential",
+                        price: 999,
+                        originalPrice: 1300,
+                        discount: 301,
+                        colors: ['black', 'brown', 'gray', 'lightgray'],
+                        image: "/Genuine Leather Bifold Wallet/Genuine Leather Bifold Wallet Black.png",
                         badge: "Best Seller",
                         category: "bifold",
-                        desc: "Hand-stitched from full-grain leather that develops a rich patina over time."
+                        desc: "Compact, durable bifold crafted from full-grain leather. Organized for daily carry with 6 card slots, a divided cash pocket, and slim profile that fits comfortably in any pocket."
                     },
                     {
                         id: 2,
                         name: "Pebbled Leather Long Wallet",
-                        tagline: "Modern Elegance",
-                        price: 4500,
+                        tagline: "Slim Executive Wallet",
+                        price: 1499,
+                        originalPrice: 2000,
+                        discount: 501,
                         colors: ['black', 'brown', 'gray'],
-                        image: "Public/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet Black.png",
+                        image: "/Pebbled Leather Long Wallet/Pebbled Leather Long Wallet Black.png",
+                        badge: "New Arrival",
                         category: "long",
-                        desc: "Spacious design with dedicated slots for cards, cash, and phone."
+                        desc: "A refined long wallet with pebbled grain for extra resilience. Holds bills flat, stores up to 12 cards, and tucks neatly into jacket pockets — designed for organized professionals."
                     },
                     {
                         id: 3,
                         name: "Vintage Leather Bifold Wallet",
-                        tagline: "Rugged Durability",
-                        price: 2200,
-                        originalPrice: 2800,
-                        discount: 600,
-                        colors: ['brown', 'black', 'gray'],
-                        image: "Public/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet Brown.jpg",
-                        badge: "New Arrival",
+                        tagline: "Heritage Finish",
+                        price: 999,
+                        originalPrice: 1300,
+                        discount: 301,
+                        colors: ['black', 'brown', 'gray'],
+                        image: "/Vintage Leather Bifold Wallet/Vintage Leather Bifold Wallet Black.jpg",
+                        badge: "Limited Edition",
                         category: "bifold",
-                        desc: "Distressed leather finish for a rugged, lived-in look from day one."
+                        desc: "Hand-finished with a gently distressed surface for immediate character. Robust construction and simple interior layout offer timeless style that improves with age."
                     }
                 ]);
 
@@ -828,157 +713,11 @@
 
                 const cartCount = computed(() => cart.value.length);
                 const cartTotal = computed(() => cart.value.reduce((acc, item) => acc + (item.price * (item.quantity || 1)), 0));
-                
-                const isFormValid = computed(() => {
-                    const email = customerDetails.value.email || '';
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    return (
-                        customerDetails.value.name && customerDetails.value.name.trim() &&
-                        customerDetails.value.phone && customerDetails.value.phone.trim() &&
-                        email && emailRegex.test(email) &&
-                        customerDetails.value.address && customerDetails.value.address.trim() &&
-                        customerDetails.value.city && customerDetails.value.city.trim()
-                    );
-                });
 
                 // Methods
                 const openCheckout = () => {
-                    cartOpen.value = false;
-                    isCheckoutOpen.value = true;
-                    checkoutStep.value = 'form';
+                    window.location.href = 'checkout.html';
                 };
-
-                const processOrder = async () => {
-                    try {
-                        const response = await fetch('/api/orders', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                customerDetails: customerDetails.value,
-                                cart: cart.value,
-                                paymentMethod: paymentMethod.value
-                            })
-                        });
-                        const data = await response.json();
-                        if (data.success) {
-                            orderId.value = data.orderId;
-                            checkoutStep.value = 'success';
-                            // Send emails to admin and customer via EmailJS (configure IDs below)
-                            try {
-                                await sendEmails();
-                            } catch (e) {
-                                console.error('Email send failed:', e);
-                            }
-                        } else {
-                            alert('Order failed. Please try again.');
-                        }
-                    } catch (error) {
-                        console.error('Order error:', error);
-                        alert('Network error. Please try again.');
-                    }
-                };
-                
-                const closeCheckout = () => {
-                    isCheckoutOpen.value = false;
-                    cart.value = []; // Clear cart on exit of success screen
-                    // Reset form
-                    customerDetails.value = { name: '', email: '', phone: '', address: '', city: '' };
-                };
-
-                const sendProofWhatsApp = () => {
-                    let message = `Hi AlfMart, I placed Order #${orderId.value} via Bank Transfer.\n\n`;
-                    message += `Name: ${customerDetails.value.name}\n`;
-                    message += `Total Amount: PKR ${cartTotal.value.toLocaleString()}\n\n`;
-                    message += `Attaching my payment proof for verification.`;
-                    window.open(`https://wa.me/${whatsappConfig.whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
-                };
-
-                const sendEmails = async () => {
-                    const SERVICE_ID = EMAILJS_CONFIG.serviceId;
-                    const TEMPLATE_ADMIN = EMAILJS_CONFIG.templateAdmin;
-                    const TEMPLATE_CUSTOMER = EMAILJS_CONFIG.templateCustomer;
-
-                    const templateParams = {
-                        to_email: customerDetails.value.email,
-                        order_id: orderId.value,
-                        customer_name: customerDetails.value.name,
-                        customer_email: customerDetails.value.email,
-                        customer_phone: customerDetails.value.phone,
-                        customer_address: `${customerDetails.value.address}, ${customerDetails.value.city}`,
-                        total_amount: `PKR ${cartTotal.value.toLocaleString()}`,
-                        payment_method: paymentMethod.value === 'cod' ? 'Cash on Delivery' : 'Bank Transfer',
-                        show_cod: paymentMethod.value === 'cod',
-                        show_bank: paymentMethod.value === 'bank',
-                        cart_items: cart.value.map(i => `${i.name} - ${i.selectedColor} - PKR ${i.price}`).join('\n')
-                    };
-
-                    try {
-                        if (typeof emailjs === 'undefined') throw new Error('EmailJS SDK not loaded');
-
-                        // Ensure EmailJS is initialized with public key if available
-                        try {
-                            if (EMAILJS_CONFIG.publicKey && typeof emailjs.init === 'function') {
-                                emailjs.init(EMAILJS_CONFIG.publicKey);
-                            }
-                        } catch (initErr) {
-                            console.warn('EmailJS init warning:', initErr && initErr.message ? initErr.message : initErr);
-                        }
-
-                        if (!SERVICE_ID) throw new Error('Missing EmailJS service ID');
-                        if (!TEMPLATE_ADMIN && !TEMPLATE_CUSTOMER) throw new Error('No EmailJS template IDs configured');
-
-                        // Send admin email
-                        if (TEMPLATE_ADMIN) {
-                            try {
-                                const adminRes = await (EMAILJS_CONFIG.publicKey
-                                    ? emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams, EMAILJS_CONFIG.publicKey)
-                                    : emailjs.send(SERVICE_ID, TEMPLATE_ADMIN, templateParams));
-                                console.log('EmailJS admin send success:', adminRes);
-                            } catch (e) {
-                                const adminErr = formatEmailJSError(e);
-                                console.error('EmailJS admin send failed:', adminErr);
-                                throw e;
-                            }
-                        }
-
-                        // Send customer email
-                        if (TEMPLATE_CUSTOMER) {
-                            try {
-                                const custRes = await (EMAILJS_CONFIG.publicKey
-                                    ? emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams, EMAILJS_CONFIG.publicKey)
-                                    : emailjs.send(SERVICE_ID, TEMPLATE_CUSTOMER, templateParams));
-                                console.log('EmailJS customer send success:', custRes);
-                            } catch (e) {
-                                const custErr = formatEmailJSError(e);
-                                console.error('EmailJS customer send failed:', custErr);
-                                throw e;
-                            }
-                        }
-                    } catch (err) {
-                        console.error('EmailJS send error (final):', formatEmailJSError(err));
-                        throw err;
-                    }
-                };
-
-                // Helper to extract useful info from EmailJS errors
-                function formatEmailJSError(e) {
-                    try {
-                        if (!e) return e;
-                        const out = {};
-                        out.message = e.message || (typeof e === 'string' ? e : null);
-                        out.status = e.status || (e && e.statusCode) || null;
-                        // e.text may be a string or function
-                        out.text = e.text || (e && e.text && typeof e.text === 'function' ? String(e.text) : null) || null;
-                        // If there's a response object with body, try to include
-                        if (e && e.response) {
-                            out.response = e.response;
-                        }
-                        out.raw = e;
-                        return out;
-                    } catch (ex) {
-                        return { message: String(e), raw: e };
-                    }
-                }
 
                 // Initialize theme from localStorage
                 const initializeTheme = () => {
@@ -1049,6 +788,10 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 };
 
+                const goHome = () => {
+                    window.location.href = 'index.html';
+                };
+
                 // EmailJS config fetched from server
                 let EMAILJS_CONFIG = {
                     publicKey: null,
@@ -1062,6 +805,10 @@
 
                     // Initialize theme from localStorage FIRST
                     initializeTheme();
+
+                    // Load cart from localStorage
+                    const savedCart = localStorage.getItem('cart');
+                    if (savedCart) cart.value = JSON.parse(savedCart);
 
                     // Fetch configuration from server
                     fetch('/api/config')
@@ -1086,8 +833,8 @@
                             // Load contact & bank config
                             whatsappConfig.value = {
                                 whatsappNumber: cfg.whatsappNumber || '923268502690',
-                                supportEmail: cfg.supportEmail || 'support@alfmart.com',
-                                supportPhone: cfg.supportPhone || '+92 300 1234567',
+                                supportEmail: cfg.supportEmail || 'alfmart.store@gmail.com',
+                                supportPhone: cfg.supportPhone || '03268502690',
                                 bank: cfg.bank || {
                                     name: 'Meezan Bank',
                                     accountTitle: 'MUHAMMAD AHMAD',
@@ -1133,10 +880,8 @@
                     activeProduct, selectedColor, filter, cart, products, whatsappConfig,
                     filteredProducts, cartCount, cartTotal, colorMap,
                     toggleTheme, openProduct, addToCart, removeFromCart,
-                    scrollToProducts, scrollToTop,
-                    // Checkout
-                    isCheckoutOpen, checkoutStep, paymentMethod, orderId, customerDetails, isFormValid,
-                    openCheckout, processOrder, closeCheckout, sendProofWhatsApp, sendEmails
+                    scrollToProducts, scrollToTop, goHome,
+                    openCheckout
                 };
             }
         }).mount('#app');

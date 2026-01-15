@@ -101,6 +101,16 @@
 
 ---
 
+### Step 4.5: Security Configuration (CRITICAL)
+1. In EmailJS dashboard, go to "Account" → "Security"
+2. **Allowed Origins:** Add your domain (e.g., `http://localhost:3000`, `https://alfmart.com`)
+   * *Risk:* If skipped, anyone can use your key to send spam.
+3. **CAPTCHA:** Enable "Add CAPTCHA verification"
+   * *Risk:* Prevents bots from flooding your email quota.
+4. Click "Save Changes"
+
+---
+
 ### Step 5: Update .env File
 
 Open `.env` in your project root and add/update:
@@ -162,7 +172,7 @@ Config: {
   templateCustomer: "template_...",
   whatsappNumber: "923268502690",
   supportEmail: "support@alfmart.com",
-  bank: { ... }
+  bank: { accountTitle: "...", accountNumber: "..." } // ENSURE NO PRIVATE KEYS HERE!
 }
 ```
 
@@ -265,6 +275,8 @@ All available variables you can use in EmailJS templates:
 3. **USE** strong, unique credentials
 4. **ROTATE** Public Key if compromised
 5. **LIMIT** Email template permissions to send-only
+6. **CONFIGURE** "Allowed Origins" in EmailJS dashboard to whitelist your domain (e.g., `alfmart.com`)
+7. **ENABLE** CAPTCHA verification in EmailJS to prevent bot spam
 
 ---
 

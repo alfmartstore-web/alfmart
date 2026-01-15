@@ -12,6 +12,7 @@
     table { width:100%; border-collapse:collapse; margin-top:12px; }
     th, td { text-align:left; padding:8px; border-bottom:1px solid #eee; }
     .bank { background:#f8fafc; padding:10px; border-radius:6px; margin-top:12px; }
+    pre { background:#f7fafc; padding:8px; overflow:auto; white-space:pre-wrap; word-wrap:break-word; }
   </style>
 </head>
 <body>
@@ -29,8 +30,12 @@
       <h4 style="margin-top:12px;">Items</h4>
       <pre>{{cart_items}}</pre>
 
+      <p><strong>Delivery Address:</strong> {{customer_address}}, {{city}}</p>
       <p><strong>Payment Method:</strong> {{payment_method}}</p>
 
+      {{#show_cod}}
+      <p style="margin-top:12px; padding:10px; background:#e8f5e9; border-radius:6px;">Your order will be delivered via Cash on Delivery. Our team will contact you at {{customer_phone}} to confirm delivery details.</p>
+      {{/show_cod}}
       {{^show_cod}}
       <div class="bank">
         <p><strong>Bank Transfer Instructions</strong></p>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - AlfMart</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind & Vue -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        canvas: '#F4F4F4',
+                        ink: '#1A1A1A',
+                        leather: '#4A2C2A',
+                        gold: '#D4AF37',
+                    },
+                    fontFamily: {
+                        serif: ['"Bodoni Moda"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F4F4F4; color: #1A1A1A; transition: background-color 0.5s ease, color 0.5s ease; }
+        .dark body { background-color: #0F0F0F; color: #E5E5E5; }
+        [v-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-canvas dark:bg-[#0F0F0F] text-ink dark:text-white">
+    <div id="app" v-cloak class="min-h-screen flex flex-col">
+        
+        <!-- Minimal Header -->
+        <header class="py-6 px-6 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-black/50 backdrop-blur-md sticky top-0 z-50">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <a href="index.html" class="font-serif text-2xl font-bold tracking-tight text-ink dark:text-white">ALFMART</a>
+                <a href="products.html" class="text-xs uppercase tracking-widest hover:text-gold transition-colors">Continue Shopping</a>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 py-12 px-6">
+            <div class="max-w-6xl mx-auto">
+                
+                <!-- Empty Cart State -->
+                <div v-if="cart.length === 0 && checkoutStep !== 'success'" class="text-center py-20">
+                    <i class="ph ph-shopping-cart text-6xl text-gray-300 mb-6"></i>
+                    <h2 class="font-serif text-3xl mb-4">Your bag is empty</h2>
+                    <a href="products.html" class="inline-block bg-ink dark:bg-white text-white dark:text-black px-8 py-3 font-sans text-xs font-bold tracking-widest uppercase hover:bg-leather transition-colors">Start Shopping</a>
+                </div>
+
+                <!-- Success State -->
+                <div v-else-if="checkoutStep === 'success'" class="max-w-2xl mx-auto text-center py-12 animate-fade-up">
+                    <div class="w-20 h-20 rounded-full border-2 border-gold flex items-center justify-center text-gold text-4xl mb-6 mx-auto">
+                        <i class="ph ph-check"></i>
+                    </div>
+                    <h3 class="font-serif text-4xl mb-2">Order Confirmed</h3>
+                    <p class="font-sans text-sm tracking-widest uppercase text-gray-500 mb-8">Order #{{ orderId }}</p>
+                    
+                    <div class="bg-white dark:bg-[#111] p-8 rounded-xl shadow-lg border-t-4 border-leather mb-8 text-left">
+                        <p class="font-sans text-sm leading-relaxed mb-4 text-gray-600 dark:text-gray-300">
+                            Thank you, <span class="font-bold text-ink dark:text-white">{{ customerDetails.name }}</span>.
+                        </p>
+                        
+                        <div v-if="paymentMethod === 'cod'">
+                            <p class="text-sm text-gray-500">Your order has been placed successfully via Cash on Delivery. Our team will verify your order via phone shortly.</p>
+                        </div>
+
+                        <div v-else>
+                            <p class="text-sm text-gray-500 mb-4">To finalize your order, please transfer <strong>PKR {{ cartTotal.toLocaleString() }}</strong> to the account below and send proof.</p>
+                            <div class="bg-gray-100 dark:bg-[#222] p-4 text-xs font-mono mb-4 text-gray-600 dark:text-gray-400 rounded">
+                                {{ whatsappConfig.bank.name }}<br>
+                                Title: {{ whatsappConfig.bank.accountTitle }}<br>
+                                AC: {{ whatsappConfig.bank.accountNumber }}<br>
+                                IBAN: {{ whatsappConfig.bank.iban }}<br>
+                                Branch: {{ whatsappConfig.bank.branch }}
+                            </div>
+                            <button @click="sendProofWhatsApp" class="w-full bg-[#25D366] text-white py-3 font-sans text-xs font-bold tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-[#20bd5a] rounded">
+                                <i class="ph ph-whatsapp-logo text-lg"></i> Send Payment Proof
+                            </button>
+                        </div>
+                    </div>
+                    <a href="index.html" class="text-xs uppercase tracking-widest underline underline-offset-4 hover:text-leather">Return to Home</a>
+                </div>
+
+                <!-- Checkout Form -->
+                <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                    
+                    <!-- Left: Forms -->
+                    <div class="lg:col-span-7 space-y-8">
+                        <!-- Shipping -->
+                        <div class="bg-white dark:bg-[#111] p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                            <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-6 text-gold flex items-center gap-3">
+                                <i class="ph ph-map-pin text-lg"></i> Shipping Details
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Full Name</label>
+                                    <input v-model="customerDetails.name" type="text" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors" placeholder="e.g. Ali Khan">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Phone Number</label>
+                                    <input v-model="customerDetails.phone" type="tel" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors" placeholder="0300-1234567">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Email</label>
+                                    <input v-model="customerDetails.email" type="email" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors" placeholder="you@example.com">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">Delivery Address</label>
+                                    <input v-model="customerDetails.address" type="text" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors" placeholder="House #, Street, Area">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-[10px] uppercase tracking-widest mb-2 text-gray-500">City</label>
+                                    <input v-model="customerDetails.city" type="text" class="w-full bg-transparent border-b border-gray-300 dark:border-gray-700 py-2 focus:border-gold outline-none transition-colors" placeholder="Lahore">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment -->
+                        <div class="bg-white dark:bg-[#111] p-6 md:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+                            <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-6 text-gold flex items-center gap-3">
+                                <i class="ph ph-credit-card text-lg"></i> Payment Method
+                            </h4>
+                            <div class="space-y-4">
+                                <label class="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-800 cursor-pointer hover:border-leather transition-colors group rounded-lg" :class="{'border-leather bg-leather/5': paymentMethod === 'cod'}">
+                                    <div class="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
+                                        <div v-if="paymentMethod === 'cod'" class="w-2 h-2 rounded-full bg-leather"></div>
+                                    </div>
+                                    <input type="radio" value="cod" v-model="paymentMethod" class="hidden">
+                                    <div>
+                                        <span class="block font-serif text-lg">Cash on Delivery</span>
+                                        <span class="text-xs text-gray-500">Pay via cash upon receipt.</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center gap-4 p-4 border border-gray-200 dark:border-gray-800 cursor-pointer hover:border-leather transition-colors group rounded-lg" :class="{'border-leather bg-leather/5': paymentMethod === 'bank'}">
+                                    <div class="w-4 h-4 rounded-full border border-gray-400 flex items-center justify-center">
+                                        <div v-if="paymentMethod === 'bank'" class="w-2 h-2 rounded-full bg-leather"></div>
+                                    </div>
+                                    <input type="radio" value="bank" v-model="paymentMethod" class="hidden">
+                                    <div>
+                                        <span class="block font-serif text-lg">Bank Transfer</span>
+                                        <span class="text-xs text-gray-500">Meezan Bank. Send proof via WhatsApp.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Summary (Sticky) -->
+                    <div class="lg:col-span-5 lg:sticky lg:top-24">
+                        <div class="bg-gray-50 dark:bg-[#151515] p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
+                            <h4 class="font-sans text-xs font-bold tracking-[0.2em] uppercase mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">Order Summary</h4>
+                            
+                            <!-- Cart Items with Quantity Controls -->
+                            <div class="space-y-6 mb-8 max-h-[50vh] overflow-y-auto pr-2">
+                                <div v-for="(item, i) in cart" :key="i" class="flex gap-4">
+                                    <div class="w-16 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                                        <img :src="item.image" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-1">
+                                            <h5 class="font-serif text-sm">{{ item.name }}</h5>
+                                            <button @click="removeFromCart(i)" class="text-gray-400 hover:text-red-500"><i class="ph ph-trash"></i></button>
+                                        </div>
+                                        <p class="text-xs text-gray-500 capitalize mb-3">{{ item.selectedColor }}</p>
+                                        
+                                        <div class="flex justify-between items-center">
+                                            <!-- Quantity Control -->
+                                            <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-black">
+                                                <button @click="updateQuantity(i, -1)" class="px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs">-</button>
+                                                <span class="px-2 text-xs font-medium">{{ item.quantity || 1 }}</span>
+                                                <button @click="updateQuantity(i, 1)" class="px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 text-xs">+</button>
+                                            </div>
+                                            <p class="font-mono text-sm">PKR {{ ((item.quantity || 1) * item.price).toLocaleString() }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-200 dark:border-gray-800 pt-4 mb-8">
+                                <div class="flex justify-between items-center text-lg font-bold">
+                                    <span>Total</span>
+                                    <span>PKR {{ cartTotal.toLocaleString() }}</span>
+                                </div>
+                                <p class="text-[10px] text-gray-400 mt-2 text-right">Includes all taxes & delivery</p>
+                            </div>
+                            
+                            <button 
+                                @click="processOrder" 
+                                class="w-full bg-ink dark:bg-white text-white dark:text-black py-4 font-sans text-xs font-bold tracking-[0.2em] uppercase hover:bg-leather transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-lg"
+                                :disabled="!isFormValid"
+                            >
+                                Place Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                const cart = ref([]);
+                const checkoutStep = ref('form');
+                const paymentMethod = ref('cod');
+                const orderId = ref(null);
+                const customerDetails = ref({ name: '', email: '', phone: '', address: '', city: '' });
+                const whatsappConfig = ref({ bank: {} });
+                let EMAILJS_CONFIG = {};
+
+                // Load Cart
+                onMounted(() => {
+                    const savedCart = localStorage.getItem('cart');
+                    if (savedCart) cart.value = JSON.parse(savedCart);
+                    
+                    // Load Config
+                    fetch('/api/config').then(r => r.json()).then(cfg => {
+                        EMAILJS_CONFIG = cfg;
+                        whatsappConfig.value.bank = cfg.bank;
+                        if (cfg.emailjsPublicKey && typeof emailjs !== 'undefined') emailjs.init(cfg.emailjsPublicKey);
+                    });
+
+                    // Theme
+                    const savedTheme = localStorage.getItem('alfmart-theme');
+                    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                        document.documentElement.classList.add('dark');
+                    }
+                });
+
+                // Cart Persistence
+                watch(cart, (newCart) => {
+                    localStorage.setItem('cart', JSON.stringify(newCart));
+                }, { deep: true });
+
+                const updateQuantity = (index, change) => {
+                    const item = cart.value[index];
+                    const newQty = (item.quantity || 1) + change;
+                    if (newQty > 0) item.quantity = newQty;
+                };
+
+                const removeFromCart = (index) => cart.value.splice(index, 1);
+
+                const cartTotal = computed(() => {
+                    const total = cart.value.reduce((acc, item) => {
+                        const itemPrice = item.price || 0;
+                        const quantity = item.quantity || 1;
+                        return acc + (itemPrice * quantity);
+                    }, 0);
+                    console.log('Cart total calculated:', total, 'Cart items:', cart.value);
+                    return total;
+                });
+
+                const isFormValid = computed(() => {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return customerDetails.value.name && customerDetails.value.phone && 
+                           emailRegex.test(customerDetails.value.email) && 
+                           customerDetails.value.address && customerDetails.value.city;
+                });
+
+                const processOrder = async () => {
+                    orderId.value = 'AM' + Date.now().toString().slice(-6);
+                    
+                    // Calculate total BEFORE any modifications
+                    const orderTotal = cartTotal.value;
+                    const formattedTotal = `PKR ${orderTotal.toLocaleString()}`;
+                    
+                    // Format cart items for email
+                    const cartItemsText = cart.value.map(item => 
+                        `${item.name} (${item.selectedColor}) x${item.quantity || 1} = PKR ${(item.price * (item.quantity || 1)).toLocaleString()}`
+                    ).join('\n');
+                    
+                    console.log('=== ORDER PROCESSING ===');
+                    console.log('orderTotal (number):', orderTotal);
+                    console.log('formattedTotal (string):', formattedTotal);
+                    console.log('Cart items:', JSON.stringify(cart.value));
+                    
+                    // Send Email FIRST before clearing cart
+                    if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.serviceId) {
+                        const params = {
+                            to_email: customerDetails.value.email,
+                            order_id: orderId.value,
+                            customer_name: customerDetails.value.name,
+                            customer_email: customerDetails.value.email,
+                            customer_phone: customerDetails.value.phone,
+                            customer_address: customerDetails.value.address,
+                            city: customerDetails.value.city,
+                            cart_items: cartItemsText,
+                            total_amount: formattedTotal,
+                            payment_method: paymentMethod.value,
+                            show_cod: paymentMethod.value === 'cod' ? '1' : '0'
+                        };
+                        console.log('Email params to send:', params);
+                        try {
+                            if (EMAILJS_CONFIG.templateAdmin) {
+                                await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateAdmin, params)
+                                    .then(() => console.log('Admin email sent successfully'))
+                                    .catch(err => console.error('Admin email failed:', err));
+                            }
+                            if (EMAILJS_CONFIG.templateCustomer) {
+                                await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateCustomer, params)
+                                    .then(() => console.log('Customer email sent successfully'))
+                                    .catch(err => console.error('Customer email failed:', err));
+                            }
+                        } catch(e) { console.error('Error sending emails:', e); }
+                    } else {
+                        console.warn('EmailJS not initialized or config missing');
+                    }
+                    
+                    // Clear cart AFTER sending emails
+                    localStorage.removeItem('cart');
+                    cart.value = [];
+                    checkoutStep.value = 'success';
+                };
+
+                const sendProofWhatsApp = () => {
+                    const msg = `Payment Proof for Order ${orderId.value}\nAmount: PKR ${cartTotal.value}`;
+                    window.open(`https://wa.me/923268502690?text=${encodeURIComponent(msg)}`, '_blank');
+                };
+
+                return {
+                    cart, checkoutStep, paymentMethod, orderId, customerDetails, whatsappConfig,
+                    cartTotal, isFormValid, updateQuantity, removeFromCart, processOrder, sendProofWhatsApp
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

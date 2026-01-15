@@ -29,7 +29,9 @@
         }
     </script>
     <script>
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        // Initialize theme from localStorage with proper key name (consistent with other pages)
+        const savedTheme = localStorage.getItem('alfmart-theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -56,23 +58,36 @@
 </head>
 <body class="bg-canvas text-ink" id="app">
     <!-- Header -->
-    <header class="fixed top-0 w-full z-30 px-6 py-6 transition-all duration-300 bg-canvas border-b border-gray-200 dark:border-gray-800">
+    <header class="fixed top-0 w-full z-30 px-6 py-6 transition-all duration-300 bg-canvas dark:bg-dark-canvas border border-gray-200 dark:border-gray-800" :class="{'py-4 shadow-sm': scrolled, 'py-8': !scrolled}">
         <div class="max-w-[1600px] mx-auto flex justify-between items-center">
-            <nav class="hidden md:flex gap-8 font-sans text-xs tracking-[0.2em] uppercase font-medium">
+            <button @click="mobileMenuOpen = true" class="md:hidden" :class="isDark ? 'text-white' : 'text-ink'">
+                <i class="ph ph-list text-2xl"></i>
+            </button>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex gap-8 font-sans text-xs tracking-[0.2em] uppercase font-medium" :class="isDark ? 'text-white' : 'text-ink'">
                 <a href="products.html" class="hover:text-leather transition-colors">Shop</a>
                 <a href="about.html" class="hover:text-leather transition-colors">About</a>
                 <a href="contact.html" class="hover:text-leather transition-colors">Contact</a>
+                <a href="track-order.html" class="hover:text-leather transition-colors">Track Order</a>
+                <a href="returns.html" class="hover:text-leather transition-colors">Returns</a>
             </nav>
+
+            <!-- Logo -->
             <div class="absolute left-1/2 transform -translate-x-1/2 text-center">
                 <h1 class="font-serif text-2xl md:text-3xl font-bold tracking-tight cursor-pointer text-transparent bg-clip-text bg-gradient-to-r via-gold to-whiskey" :class="isDark ? 'from-white' : 'from-ink'" @click="goHome">ALFMART</h1>
             </div>
+
+            <!-- Icons -->
             <div class="flex items-center gap-6">
-                <button @click="toggleTheme" class="hover:text-gold transition-colors">
+                <button @click="toggleTheme" class="hidden md:block hover:text-gold transition-colors" :class="isDark ? 'text-white' : 'text-ink'">
                     <i :class="isDark ? 'ph-sun' : 'ph-moon'" class="ph text-xl"></i>
                 </button>
             </div>
         </div>
     </header>
+
+    <div v-show="isDark" class="fixed inset-0 pointer-events-none opacity-40 mix-blend-overlay bg-grain z-20 h-full w-full"></div>
 
     <!-- Main Content -->
     <main class="pt-32 pb-24 px-6 md:px-20 min-h-screen flex items-center justify-center">
