@@ -71,9 +71,9 @@
                     <h3 class="font-serif text-4xl mb-2">Order Confirmed</h3>
                     <p class="font-sans text-sm tracking-widest uppercase text-gray-500 mb-8">Order #{{ orderId }}</p>
                     
-                    <div class="bg-white dark:bg-[#111] p-8 rounded-xl shadow-lg border-t-4 border-leather mb-8 text-left">
+                    <div v-if="orderId" class="bg-white dark:bg-[#111] p-8 rounded-xl shadow-lg border-t-4 border-leather mb-8 text-left">
                         <p class="font-sans text-sm leading-relaxed mb-4 text-gray-600 dark:text-gray-300">
-                            Thank you, <span class="font-bold text-ink dark:text-white">{{ customerDetails.name }}</span>.
+                            Thank you, <span class="font-bold text-ink dark:text-white">{{ customerDetails?.name || 'Valued Customer' }}</span>.
                         </p>
                         
                         <div v-if="paymentMethod === 'cod'">
@@ -82,7 +82,7 @@
 
                         <div v-else>
                             <p class="text-sm text-gray-500 mb-4">To finalize your order, please transfer <strong>PKR {{ orderTotal.toLocaleString() }}</strong> to the account below and send proof.</p>
-                            <div class="bg-gray-100 dark:bg-[#222] p-4 text-xs font-mono mb-4 text-gray-600 dark:text-gray-400 rounded">
+                            <div v-if="whatsappConfig?.bank?.name" class="bg-gray-100 dark:bg-[#222] p-4 text-xs font-mono mb-4 text-gray-600 dark:text-gray-400 rounded">
                                 {{ whatsappConfig.bank.name }}<br>
                                 Title: {{ whatsappConfig.bank.accountTitle }}<br>
                                 AC: {{ whatsappConfig.bank.accountNumber }}<br>
@@ -226,7 +226,15 @@
                 const orderId = ref(null);
                 const orderTotal = ref(0); // Store total as reactive ref
                 const customerDetails = ref({ name: '', email: '', phone: '', address: '', city: '' });
-                const whatsappConfig = ref({ bank: {} });
+                const whatsappConfig = ref({ 
+                    bank: {
+                        name: 'Meezan Bank',
+                        accountTitle: 'MUHAMMAD AHMAD',
+                        accountNumber: '02780113523044',
+                        iban: 'PK98MEZN0002780113523044',
+                        branch: 'Avian Chowk Br Lahore'
+                    }
+                });
                 let EMAILJS_CONFIG = {};
 
                 // Load Cart
@@ -343,9 +351,12 @@
                             console.warn('EmailJS not initialized or config missing');
                         }
                         
-                        // Clear cart AFTER emails are sent
-                        localStorage.removeItem('cart');
-                        cart.value = [];
+                        // Clear cart AFTER emails and rendering complete (use setTimeout to defer)
+                        setTimeout(() => {
+                            localStorage.removeItem('cart');
+                            cart.value = [];
+                            console.log('Cart cleared after success page render');
+                        }, 500);
                     } catch (error) {
                         console.error('Error in processOrder:', error);
                         checkoutStep.value = 'form'; // Reset form on error
