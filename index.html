@@ -592,7 +592,13 @@
                 
                 <!-- Gallery -->
                 <div class="bg-[#F5F5F7] dark:bg-[#1a1a1a] relative h-[40vh] md:h-[500px] shrink-0 flex items-center justify-center p-8">
-                    <img :src="getProductImage(activeProduct, selectedColor)" class="w-full h-full object-contain drop-shadow-2xl transition-all duration-500">
+                    <img 
+                        :src="getProductImage(activeProduct, selectedColor)" 
+                        class="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-200"
+                        @load="imageLoaded = true"
+                        loading="eager"
+                        decoding="sync"
+                    >
                 </div>
 
                 <!-- Details -->
@@ -661,6 +667,7 @@
                 const isDark = ref(false);
                 const activeProduct = ref(null);
                 const selectedColor = ref(null);
+                const imageLoaded = ref(true);
                 const filter = ref('all');
                 
                 // Cart Logic
@@ -670,6 +677,17 @@
                 watch(cart, (newCart) => {
                     localStorage.setItem('cart', JSON.stringify(newCart));
                 }, { deep: true });
+
+                // Preload image when color changes
+                watch(selectedColor, (newColor) => {
+                    if (activeProduct.value && newColor) {
+                        imageLoaded.value = false;
+                        const img = new Image();
+                        img.onload = () => { imageLoaded.value = true; };
+                        img.onerror = () => { imageLoaded.value = true; };
+                        img.src = getProductImage(activeProduct.value, newColor);
+                    }
+                });
 
                 // Configuration from server
                 const whatsappConfig = ref({
@@ -741,6 +759,42 @@
 
                 // Attempt to load products from Supabase
                 // Products are hardcoded above and don't need to be loaded
+
+                // Define getProductImage BEFORE watch statements
+                const getProductImage = (product, color) => {
+                    if (!product) return '';
+                    const c = color || (product.colors && product.colors[0]) || 'black';
+                    
+                    // Cache key for memoization
+                    const cacheKey = `${product.id}-${c}`;
+                    if (window._imageCache && window._imageCache[cacheKey]) {
+                        return window._imageCache[cacheKey];
+                    }
+                    
+                    let imageUrl = '';
+                    
+                    if (product.id === 1) {
+                        imageUrl = `/Public/Genuine Leather Bifold Wallet/glbw${c}.png`;
+                    } else if (product.id === 2) {
+                        imageUrl = `/Public/Pebbled Leather Long Wallet/pllw${c}.png`;
+                    } else if (product.id === 3) {
+                        imageUrl = c === 'gray' 
+                            ? `/Public/Vintage Leather Bifold Wallet/VLBWGray.jpg`
+                            : `/Public/Vintage Leather Bifold Wallet/vlbw${c}.jpg`;
+                    } else {
+                        imageUrl = product.image;
+                    }
+                    
+                    // Cache the result
+                    if (!window._imageCache) window._imageCache = {};
+                    window._imageCache[cacheKey] = imageUrl;
+                    
+                    // Preload the image
+                    const img = new Image();
+                    img.src = imageUrl;
+                    
+                    return imageUrl;
+                };
 
                 // Computed
                 const filteredProducts = computed(() => {
@@ -829,24 +883,6 @@
 
                 const goHome = () => {
                     window.location.href = 'index.html';
-                };
-
-                const getProductImage = (product, color) => {
-                    if (!product) return '';
-                    const c = color || (product.colors && product.colors[0]) || 'black';
-                    
-                    if (product.id === 1) {
-                        return `/Public/Genuine Leather Bifold Wallet/glbw${c}.png`;
-                    }
-                    if (product.id === 2) {
-                        return `/Public/Pebbled Leather Long Wallet/pllw${c}.png`;
-                    }
-                    if (product.id === 3) {
-                        if (c === 'gray') return `/Public/Vintage Leather Bifold Wallet/VLBWGray.jpg`;
-                        return `/Public/Vintage Leather Bifold Wallet/vlbw${c}.jpg`;
-                    }
-                    
-                    return product.image;
                 };
 
                 // EmailJS config fetched from server
@@ -941,7 +977,7 @@
 
                 return {
                     isLoading, loadingVisible, scrolled, mobileMenuOpen, cartOpen, isDark,
-                    activeProduct, selectedColor, filter, cart, products, whatsappConfig,
+                    activeProduct, selectedColor, imageLoaded, filter, cart, products, whatsappConfig,
                     filteredProducts, cartCount, cartTotal, colorMap,
                     toggleTheme, openProduct, addToCart, removeFromCart,
                     scrollToProducts, scrollToTop, goHome, getProductImage, updateQuantity,
