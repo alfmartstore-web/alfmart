@@ -316,9 +316,10 @@
                 <img 
                     src="./Public/heropageimage.jpg" 
                     alt="Premium marketplace showcasing quality products" 
-                    class="absolute inset-0 w-full h-full object-cover z-0 img-zoom"
+                    class="absolute inset-0 w-full h-full object-cover z-0 img-zoom loaded"
                     fetchpriority="high"
                     decoding="async"
+                    loading="eager"
                 >
                 
                 <!-- Dark Overlay for Text Readability -->
@@ -431,7 +432,7 @@
                             <img 
                                 :src="product.image" 
                                 :alt="product.name"
-                                class="w-full h-full object-cover img-zoom grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
+                                class="w-full h-full object-cover img-zoom grayscale-[20%] group-hover:grayscale-0 transition-all duration-700 loaded"
                                 loading="lazy"
                                 decoding="async"
                             >
@@ -466,12 +467,12 @@
 
             <!-- 5. VISUAL INTERLUDE (Materials) -->
             <section id="materials" class="h-[60vh] relative flex items-center justify-center overflow-hidden">
-                <img src="/newasset.png" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-black/50"></div>
+                <img src="/newasset.png" alt="AlfMart workshop - premium leather craftsmanship" class="absolute inset-0 w-full h-full object-cover loaded" loading="lazy" decoding="async">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
                 <div class="relative z-10 text-center text-white px-6">
-                    <p class="font-sans text-xs font-bold tracking-[0.4em] uppercase mb-4 text-gold">The Workshop</p>
-                    <h2 class="font-serif text-4xl md:text-6xl mb-8">Cut from a Different Cloth.</h2>
-                    <a href="about.html" class="inline-block border border-white/30 text-white px-8 py-3 font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-ink transition-all">Read Our Story</a>
+                    <p class="font-sans text-xs font-bold tracking-[0.4em] uppercase mb-4 text-gold drop-shadow-lg">The Workshop</p>
+                    <h2 class="font-serif text-4xl md:text-6xl mb-8 text-white drop-shadow-2xl">Cut from a Different Cloth.</h2>
+                    <a href="about.html" class="inline-block border border-white/30 text-white px-8 py-3 font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-ink transition-all hover:border-white shadow-lg">Read Our Story</a>
                 </div>
             </section>
 
@@ -1117,14 +1118,14 @@
 
     <!-- Lazy Loading and Performance Optimization Script -->
     <script>
-        // Intersection Observer for lazy loading images with better performance
+        // Enhanced Intersection Observer for lazy loading images with better performance
         if ('IntersectionObserver' in window) {
             const imageObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
+                        // Handle data-src lazy loading
                         if (img.dataset.src) {
-                            // Load actual image
                             const actualImg = new Image();
                             actualImg.onload = () => {
                                 img.src = img.dataset.src;
@@ -1132,19 +1133,27 @@
                                 img.classList.add('loaded');
                             };
                             actualImg.onerror = () => {
-                                // Fallback if image fails to load
                                 img.src = img.dataset.src;
+                                img.classList.add('loaded');
                             };
                             actualImg.src = img.dataset.src;
+                        } else if (img.loading === 'lazy' && !img.classList.contains('loaded')) {
+                            // Ensure loaded class is added for lazy images that are now visible
+                            img.classList.add('loaded');
                         }
                         observer.unobserve(img);
                     }
                 });
             }, {
-                rootMargin: '100px'
+                rootMargin: '150px' // Increased margin for earlier loading
             });
 
             // Observe all lazy images
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                imageObserver.observe(img);
+            });
+
+            // Also observe data-src images
             document.querySelectorAll('img[data-src]').forEach(img => {
                 imageObserver.observe(img);
             });
@@ -1153,34 +1162,65 @@
             document.querySelectorAll('img[data-src]').forEach(img => {
                 img.src = img.dataset.src;
                 img.removeAttribute('data-src');
+                img.classList.add('loaded');
+            });
+            document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+                img.classList.add('loaded');
             });
         }
 
-        // Optimize scroll performance with debouncing
+        // Optimize scroll performance with debouncing and RAF
         let ticking = false;
         window.addEventListener('scroll', () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    // Scroll event handling
                     ticking = false;
                 });
                 ticking = true;
             }
         }, { passive: true });
 
-        // Preload critical resources
+        // Preload critical resources on page load
+        function preloadCriticalResources() {
+            // Preload hero image for faster rendering
+            if (!document.querySelector('link[href="./Public/heropageimage.jpg"]')) {
+                const heroLink = document.createElement('link');
+                heroLink.rel = 'preload';
+                heroLink.as = 'image';
+                heroLink.href = './Public/heropageimage.jpg';
+                heroLink.imagesrcset = './Public/heropageimage.jpg';
+                document.head.appendChild(heroLink);
+            }
+            
+            // Preload workshop image for smooth section transitions
+            if (!document.querySelector('link[href="/newasset.png"]')) {
+                const workshopLink = document.createElement('link');
+                workshopLink.rel = 'preload';
+                workshopLink.as = 'image';
+                workshopLink.href = '/newasset.png';
+                document.head.appendChild(workshopLink);
+            }
+        }
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', preloadCriticalResources);
         } else {
             preloadCriticalResources();
         }
 
-        function preloadCriticalResources() {
-            // Preload hero image
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'image';
-            link.href = './Public/heropageimage.jpg';
-            document.head.appendChild(link);
-        }
+        // Optimize image loading by requesting lower priority on scroll
+        const enableLazyLoadingOnScroll = () => {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+                    lazyImages.forEach(img => {
+                        if (img.complete && !img.classList.contains('loaded')) {
+                            img.classList.add('loaded');
+                        }
+                    });
+                }, { timeout: 2000 });
+            }
+        };
+
+        window.addEventListener('load', enableLazyLoadingOnScroll);
     </script>
