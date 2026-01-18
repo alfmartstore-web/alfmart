@@ -5,8 +5,8 @@
   "description": "Premium leather goods e-commerce store",
   "scripts": {
     "dev": "node server.js",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "node scripts/build.js",
+    "preview": "node server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.90.1",
