@@ -170,6 +170,48 @@ export const PRODUCT_DEFAULTS = {
   MAX_PRICE: 100000
 };
 
+// ============================================================================
+// PRODUCT IMAGE CONFIGURATION
+// ============================================================================
+export const PRODUCT_IMAGES = {
+  BASE_PATH: '/Public',
+  PRODUCTS: {
+    1: {
+      name: 'Genuine Leather Bifold Wallet',
+      folder: 'Genuine Leather Bifold Wallet',
+      prefix: 'glbw',
+      format: 'jpg'
+    },
+    2: {
+      name: 'Pebbled Leather Long Wallet',
+      folder: 'Pebbled Leather Long Wallet',
+      prefix: 'pllw',
+      format: 'jpg'
+    },
+    3: {
+      name: 'Vintage Leather Bifold Wallet',
+      folder: 'Vintage Leather Bifold Wallet',
+      prefix: 'vlbw',
+      format: 'jpg',
+      colorOverrides: {
+        gray: 'VLBWGray'
+      }
+    }
+  },
+  HERO_IMAGE: '/Public/heropageimage.jpg'
+};
+
+// ============================================================================
+// IMAGE PATH GENERATOR
+// ============================================================================
+export const getProductImagePath = (productId, color = 'black') => {
+  const product = PRODUCT_IMAGES.PRODUCTS[productId];
+  if (!product) return PRODUCT_DEFAULTS.IMAGE_FALLBACK;
+  
+  const colorName = product.colorOverrides?.[color] || `${product.prefix}${color}`;
+  return `${PRODUCT_IMAGES.BASE_PATH}/${product.folder}/${colorName}.${product.format}`;
+};
+
 export default {
   API_CONFIG,
   THEME_CONFIG,
@@ -186,5 +228,7 @@ export default {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
   STORAGE_KEYS,
-  PRODUCT_DEFAULTS
+  PRODUCT_DEFAULTS,
+  PRODUCT_IMAGES,
+  getProductImagePath
 };

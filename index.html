@@ -724,7 +724,7 @@
                         originalPrice: 1300,
                         discount: 301,
                         colors: ['black', 'brown', 'gray', 'lightgray'],
-                        image: "/Public/Genuine Leather Bifold Wallet/glbwblack.png",
+                        image: "/Public/Genuine Leather Bifold Wallet/glbwblack.jpg",
                         badge: "Best Seller",
                         category: "bifold",
                         desc: "Compact, durable bifold crafted from full-grain leather. Organized for daily carry with 6 card slots, a divided cash pocket, and slim profile that fits comfortably in any pocket."
@@ -750,7 +750,7 @@
                         originalPrice: 2000,
                         discount: 501,
                         colors: ['black', 'brown', 'gray'],
-                        image: "/Public/Pebbled Leather Long Wallet/pllwblack.png",
+                        image: "/Public/Pebbled Leather Long Wallet/pllwblack.jpg",
                         badge: "New Arrival",
                         category: "long",
                         desc: "A refined long wallet with pebbled grain for extra resilience. Holds bills flat, stores up to 12 cards, and tucks neatly into jacket pockets — designed for organized professionals."
@@ -761,6 +761,26 @@
                 // Products are hardcoded above and don't need to be loaded
 
                 // Define getProductImage BEFORE watch statements
+                // Product Image Configuration
+                const productImageConfig = {
+                    1: {
+                        folder: 'Genuine Leather Bifold Wallet',
+                        prefix: 'glbw',
+                        format: 'jpg'
+                    },
+                    2: {
+                        folder: 'Pebbled Leather Long Wallet',
+                        prefix: 'pllw',
+                        format: 'jpg'
+                    },
+                    3: {
+                        folder: 'Vintage Leather Bifold Wallet',
+                        prefix: 'vlbw',
+                        format: 'jpg',
+                        colorOverrides: { gray: 'VLBWGray' }
+                    }
+                };
+
                 const getProductImage = (product, color) => {
                     if (!product) return '';
                     const c = color || (product.colors && product.colors[0]) || 'black';
@@ -772,15 +792,11 @@
                     }
                     
                     let imageUrl = '';
+                    const config = productImageConfig[product.id];
                     
-                    if (product.id === 1) {
-                        imageUrl = `/Public/Genuine Leather Bifold Wallet/glbw${c}.png`;
-                    } else if (product.id === 2) {
-                        imageUrl = `/Public/Pebbled Leather Long Wallet/pllw${c}.png`;
-                    } else if (product.id === 3) {
-                        imageUrl = c === 'gray' 
-                            ? `/Public/Vintage Leather Bifold Wallet/VLBWGray.jpg`
-                            : `/Public/Vintage Leather Bifold Wallet/vlbw${c}.jpg`;
+                    if (config) {
+                        const colorName = config.colorOverrides?.[c] || `${config.prefix}${c}`;
+                        imageUrl = `/Public/${config.folder}/${colorName}.${config.format}`;
                     } else {
                         imageUrl = product.image;
                     }
