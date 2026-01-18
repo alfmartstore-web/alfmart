@@ -466,13 +466,13 @@
             </section>
 
             <!-- 5. VISUAL INTERLUDE (Materials) -->
-            <section id="materials" class="h-[60vh] relative flex items-center justify-center overflow-hidden">
-                <img src="/newasset.png" alt="AlfMart workshop - premium leather craftsmanship" class="absolute inset-0 w-full h-full object-cover loaded" loading="lazy" decoding="async">
-                <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60"></div>
+            <section id="materials" class="h-[60vh] relative flex items-center justify-center overflow-hidden bg-black">
+                <img src="./newasset.png" alt="AlfMart workshop - premium leather craftsmanship" class="absolute inset-0 w-full h-full object-cover loaded" loading="eager" decoding="async" fetchpriority="high">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/70"></div>
                 <div class="relative z-10 text-center text-white px-6">
-                    <p class="font-sans text-xs font-bold tracking-[0.4em] uppercase mb-4 text-gold drop-shadow-lg">The Workshop</p>
+                    <p class="font-sans text-xs font-bold tracking-[0.4em] uppercase mb-4 text-gold drop-shadow-2xl">The Workshop</p>
                     <h2 class="font-serif text-4xl md:text-6xl mb-8 text-white drop-shadow-2xl">Cut from a Different Cloth.</h2>
-                    <a href="about.html" class="inline-block border border-white/30 text-white px-8 py-3 font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-ink transition-all hover:border-white shadow-lg">Read Our Story</a>
+                    <a href="about.html" class="inline-block border-2 border-white text-white px-8 py-3 font-sans text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-ink transition-all hover:border-white shadow-lg">Read Our Story</a>
                 </div>
             </section>
 
@@ -1192,13 +1192,24 @@
                 document.head.appendChild(heroLink);
             }
             
-            // Preload workshop image for smooth section transitions
-            if (!document.querySelector('link[href="/newasset.png"]')) {
+            // Preload workshop image for smooth section transitions - CRITICAL PRIORITY
+            if (!document.querySelector('link[href="./newasset.png"]')) {
                 const workshopLink = document.createElement('link');
                 workshopLink.rel = 'preload';
                 workshopLink.as = 'image';
-                workshopLink.href = '/newasset.png';
+                workshopLink.href = './newasset.png';
+                workshopLink.imagesrcset = './newasset.png';
                 document.head.appendChild(workshopLink);
+            }
+
+            // Enable HTTP/2 Server Push simulation for images
+            if (navigator.connection && navigator.connection.effectiveType !== '4g') {
+                // On slower connections, prefetch additional resources
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.as = 'image';
+                prefetchLink.href = './newasset.png';
+                document.head.appendChild(prefetchLink);
             }
         }
 
@@ -1222,5 +1233,26 @@
             }
         };
 
-        window.addEventListener('load', enableLazyLoadingOnScroll);
+        // Ensure critical images load immediately and are cached
+        window.addEventListener('load', () => {
+            enableLazyLoadingOnScroll();
+            
+            // Force critical images to cache by pre-caching
+            const criticalImages = ['./Public/heropageimage.jpg', './newasset.png'];
+            if ('caches' in window) {
+                caches.open('alfmart-images-v1').then(cache => {
+                    criticalImages.forEach(imgUrl => {
+                        cache.match(imgUrl).then(response => {
+                            if (!response) {
+                                cache.add(imgUrl).catch(() => {
+                                    // Cache add failed, continue
+                                });
+                            }
+                        });
+                    });
+                }).catch(() => {
+                    // Caching not available
+                });
+            }
+        });
     </script>
