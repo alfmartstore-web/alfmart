@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import compression from 'compression';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -13,11 +14,69 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(compression()); // Enable gzip compression
 app.use(cors());
 app.use(bodyParser.json());
+
+// Cache control middleware for static assets
+const staticCacheMiddleware = (req, res, next) => {
+  const isImage = /\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(req.path);
+  const isFont = /\.(woff|woff2|ttf|otf|eot)$/i.test(req.path);
+  const isCritical = req.path === '/index.html' || req.path === '/';
+  
+  if (isImage || isFont) {
+    // Cache images and fonts for 30 days (long-term cache)
+    res.set('Cache-Control', 'public, max-age=2592000, immutable');
+  } else if (isCritical) {
+    // Don't cache HTML to ensure fresh content
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  } else {
+    // Cache other assets for 7 days
+    res.set('Cache-Control', 'public, max-age=604800');
+  }
+  next();
+};
+
+app.use(staticCacheMiddleware);
+
+// WebP image format negotiation middleware
+app.get(/\.(jpg|jpeg|png)$/i, (req, res, next) => {
+  const acceptWebP = req.get('Accept')?.includes('image/webp');
+  if (!acceptWebP) {
+    next();
+    return;
+  }
+  
+  const webpPath = req.path.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+  const fullPath = path.join(__dirname, webpPath);
+  
+  if (fs.existsSync(fullPath)) {
+    res.set('Content-Type', 'image/webp');
+    res.sendFile(fullPath);
+  } else {
+    next();
+  }
+});
+
+// Image optimization headers middleware
+app.use((req, res, next) => {
+  // Add early hints for faster resource discovery
+  if (/\.(jpg|jpeg|png|webp|gif)$/i.test(req.path)) {
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.set('Link', '<' + req.path + '>; rel=preload; as=image');
+  }
+  next();
+});
+
 // Serve static files from root directory (HTML pages) and Public directory (assets)
-app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, 'Public')));
+app.use(express.static(__dirname, { 
+  maxAge: '30d',
+  etag: false // Let compression handle efficiency
+}));
+app.use(express.static(path.join(__dirname, 'Public'), { 
+  maxAge: '30d',
+  etag: false
+}));
 
 // Orders persistence (dev-only JSON file)
 const ORDERS_FILE = path.join(__dirname, 'data', 'orders.json');

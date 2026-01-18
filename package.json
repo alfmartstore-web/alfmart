@@ -12,7 +12,8 @@
     "express": "^5.2.1",
     "cors": "^2.8.5",
     "body-parser": "^2.2.2",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "compression": "^1.7.4"
   },
   "devDependencies": {
     "vite": "^7.3.1",

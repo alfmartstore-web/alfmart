@@ -57,11 +57,15 @@ img {
     max-width: 100%;
     height: auto;
     object-fit: cover;
+    /* Enable hardware acceleration for image rendering */
+    will-change: transform;
 }
 
 /* Critical images (hero) - load immediately */
 img[fetchpriority="high"] {
     importance: high;
+    /* Faster initial paint for critical images */
+    content-visibility: auto;
 }
 
 /* Below-the-fold images - load later */
@@ -88,6 +92,10 @@ img[decoding="async"] {
     decoding: async;
 }
 
+img[decoding="sync"] {
+    decoding: sync;
+}
+
 /* Image containers with background color to prevent flash */
 .bg-\[\#EAEAEA\] {
     background-color: #EAEAEA;
@@ -96,6 +104,90 @@ img[decoding="async"] {
 
 .dark .bg-\[\#1a1a1a\] {
     background-color: #1a1a1a;
+}
+
+/* Optimize image display for different screen sizes */
+@media (max-width: 768px) {
+    img {
+        /* Reduce motion on mobile for better performance */
+        animation-duration: 0.3s;
+    }
+}
+
+/* Improve perceived performance with contain */
+img[loading="lazy"] {
+    contain: layout style paint;
+}
+
+/* Hero image optimization */
+.img-zoom {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group:hover .img-zoom {
+    transform: scale(1.05);
+}
+
+/* Image loading state transitions */
+img[loading="eager"] {
+    /* Prioritize rendering for modal images */
+    image-rendering: high-quality;
+}
+
+/* Smooth fade-in on color change */
+@keyframes fadeInImage {
+    from {
+        opacity: 0.8;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+img[decoding="sync"] {
+    animation: fadeInImage 0.3s ease-out;
+}
+
+/* Loading skeleton for images */
+.image-loading-placeholder {
+    background: linear-gradient(
+        90deg,
+        #e0e0e0 0%,
+        #f0f0f0 50%,
+        #e0e0e0 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmerFast 1.5s infinite;
+}
+
+@keyframes shimmerFast {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.dark .image-loading-placeholder {
+    background: linear-gradient(
+        90deg,
+        #2a2a2a 0%,
+        #3a3a3a 50%,
+        #2a2a2a 100%
+    );
+}
+
+/* Reduce animation complexity for performance */
+@media (prefers-reduced-motion: reduce) {
+    img.loaded,
+    img[data-src],
+    .img-zoom,
+    img[decoding="sync"],
+    .image-loading-placeholder {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 /* Optimize text rendering while loading fonts */

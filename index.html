@@ -372,8 +372,10 @@
                         <div class="aspect-[4/5] w-full overflow-hidden bg-[#EAEAEA] relative mb-6 shadow-lg">
                             <img 
                                 :src="product.image" 
+                                :alt="product.name"
                                 class="w-full h-full object-cover img-zoom grayscale-[20%] group-hover:grayscale-0 transition-all duration-700"
                                 loading="lazy"
+                                decoding="async"
                             >
                             <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                                 <button class="bg-white text-ink px-6 py-3 font-sans text-xs uppercase tracking-widest hover:bg-leather hover:text-white transition-colors">
@@ -545,7 +547,7 @@
 
                     <div v-else class="space-y-6">
                         <div v-for="(item, i) in cart" :key="i" class="flex gap-4">
-                            <img :src="item.image" class="w-20 h-24 object-cover bg-gray-100" loading="lazy">
+                            <img :src="item.image" :alt="item.name" class="w-20 h-24 object-cover bg-gray-100" loading="lazy" decoding="async">
                             <div class="flex-1">
                                 <h4 class="font-serif text-lg text-ink dark:text-white">{{ item.name }}</h4>
                                 <p class="text-xs font-sans text-gray-500 mb-1 capitalize">{{ item.selectedColor }} Leather</p>
@@ -594,6 +596,7 @@
                 <div class="bg-[#F5F5F7] dark:bg-[#1a1a1a] relative h-[40vh] md:h-[500px] shrink-0 flex items-center justify-center p-8">
                     <img 
                         :src="getProductImage(activeProduct, selectedColor)" 
+                        :alt="activeProduct.name"
                         class="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-200"
                         @load="imageLoaded = true"
                         loading="eager"
@@ -625,7 +628,7 @@
                                 <button 
                                     v-for="color in activeProduct.colors" 
                                     :key="color"
-                                    @click="selectedColor = color"
+                                    @click="selectedColor = color; imageLoaded = false; preloadImage(getProductImage(activeProduct, color)).then(() => { imageLoaded = true; })"
                                     class="group relative w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95"
                                 >
                                     <div class="absolute inset-0 rounded-full border-2 transition-all" :class="selectedColor === color ? 'border-ink dark:border-white scale-125' : 'border-transparent group-hover:border-gray-300'"></div>
@@ -682,10 +685,11 @@
                 watch(selectedColor, (newColor) => {
                     if (activeProduct.value && newColor) {
                         imageLoaded.value = false;
-                        const img = new Image();
-                        img.onload = () => { imageLoaded.value = true; };
-                        img.onerror = () => { imageLoaded.value = true; };
-                        img.src = getProductImage(activeProduct.value, newColor);
+                        const imageUrl = getProductImage(activeProduct.value, newColor);
+                        // Use promise-based preload for better performance tracking
+                        preloadImage(imageUrl).then(() => {
+                            imageLoaded.value = true;
+                        });
                     }
                 });
 
@@ -781,14 +785,18 @@
                     }
                 };
 
+                // Image cache and preload manager
+                const imageCache = {};
+                const preloadingPromises = {};
+
                 const getProductImage = (product, color) => {
                     if (!product) return '';
                     const c = color || (product.colors && product.colors[0]) || 'black';
                     
                     // Cache key for memoization
                     const cacheKey = `${product.id}-${c}`;
-                    if (window._imageCache && window._imageCache[cacheKey]) {
-                        return window._imageCache[cacheKey];
+                    if (imageCache[cacheKey]) {
+                        return imageCache[cacheKey];
                     }
                     
                     let imageUrl = '';
@@ -802,14 +810,47 @@
                     }
                     
                     // Cache the result
-                    if (!window._imageCache) window._imageCache = {};
-                    window._imageCache[cacheKey] = imageUrl;
-                    
-                    // Preload the image
-                    const img = new Image();
-                    img.src = imageUrl;
+                    imageCache[cacheKey] = imageUrl;
                     
                     return imageUrl;
+                };
+
+                // Preload multiple color variants in parallel
+                const preloadColorVariants = (product) => {
+                    if (!product || !product.colors) return;
+                    
+                    product.colors.forEach(color => {
+                        const cacheKey = `${product.id}-${color}`;
+                        
+                        // Skip if already cached
+                        if (imageCache[cacheKey]) return;
+                        
+                        // Skip if already preloading
+                        if (preloadingPromises[cacheKey]) return;
+                        
+                        // Create preload promise
+                        preloadingPromises[cacheKey] = new Promise((resolve) => {
+                            const img = new Image();
+                            img.onload = resolve;
+                            img.onerror = resolve; // Resolve even on error to prevent hanging
+                            img.src = getProductImage(product, color);
+                            
+                            // Set priority hint for faster loading
+                            if ('fetchPriority' in img) {
+                                img.fetchPriority = 'low';
+                            }
+                        });
+                    });
+                };
+
+                // Preload single image immediately
+                const preloadImage = (imageUrl) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                        img.src = imageUrl;
+                    });
                 };
 
                 // Computed
@@ -854,6 +895,8 @@
                 const openProduct = (product) => {
                     activeProduct.value = product;
                     selectedColor.value = product.colors[0];
+                    // Preload all color variants in background
+                    preloadColorVariants(product);
                 };
 
                 const addToCart = (product) => {
