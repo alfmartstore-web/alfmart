@@ -1,30 +1,42 @@
 import { createClient } from '@supabase/supabase-js';
 
+const generateOrderNumber = () => {
+  const d = new Date();
+  const date = d.toISOString().slice(0,10).replace(/-/g,''); // YYYYMMDD
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `AM-${date}-${rand}`;
+};
+
 export async function onRequest(context) {
   const { request, env } = context;
-
   const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
 
   if (request.method === 'POST') {
     try {
       const { customerDetails, cart, paymentMethod } = await request.json();
-      console.log('Received order data:', { customerDetails, cart, paymentMethod });
 
-      const orderId = `NG-${Date.now()}`;
-      const total = cart.reduce((sum, item) => sum + item.price, 0);
-      console.log('Calculated total:', total);
+      // Input validation from server.js
+      if (!customerDetails || !customerDetails.name || !customerDetails.email || !customerDetails.phone || !customerDetails.address || !customerDetails.city) {
+        return new Response(JSON.stringify({ success: false, message: 'Missing customer details' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
+      if (!Array.isArray(cart) || cart.length === 0) {
+        return new Response(JSON.stringify({ success: false, message: 'Cart is empty' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      }
+
+      const orderNumber = generateOrderNumber();
+      // Correct total calculation from server.js
+      const total = cart.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
 
       const order = {
-        id: orderId,
+        id: orderNumber,
+        order_number: orderNumber,
         customer: customerDetails,
         items: cart,
-        paymentMethod,
-        total: total,
+        payment_method: paymentMethod || 'cod',
+        total_cents: total,
         status: 'pending',
-        date: new Date().toISOString()
+        created_at: new Date().toISOString()
       };
-
-      console.log('Order object to insert:', order);
 
       const { error } = await supabase.from('orders').insert(order);
       if (error) {
@@ -32,9 +44,7 @@ export async function onRequest(context) {
         throw error;
       }
 
-      console.log('Order inserted successfully:', orderId);
-
-      return new Response(JSON.stringify({ success: true, orderId, message: 'Order placed successfully!' }), {
+      return new Response(JSON.stringify({ success: true, orderId: orderNumber, message: 'Order placed successfully!' }), {
         headers: { 'Content-Type': 'application/json' }
       });
     } catch (error) {
