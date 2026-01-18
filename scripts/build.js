@@ -30,6 +30,16 @@ if (fs.existsSync(publicSrc)) {
   console.log('✓ Copied Public folder');
 }
 
+// Copy favicon files to dist root for easier access
+const faviconFiles = ['favicon.ico', 'favicon.svg', 'favicon-96x96.png', 'apple-touch-icon.png', 'site.webmanifest'];
+faviconFiles.forEach(file => {
+  const src = path.join(publicSrc, file);
+  const dest = path.join(distDir, file);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+  }
+});
+
 // Copy src/styles folder
 const stylesSrc = path.join(projectRoot, 'src', 'styles');
 const stylesDest = path.join(distDir, 'src', 'styles');
