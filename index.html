@@ -628,7 +628,7 @@
                                 <button 
                                     v-for="color in activeProduct.colors" 
                                     :key="color"
-                                    @click="selectedColor = color; imageLoaded = false; preloadImage(getProductImage(activeProduct, color)).then(() => { imageLoaded = true; })"
+                                    @click="selectProductColor(color)"
                                     class="group relative w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95"
                                 >
                                     <div class="absolute inset-0 rounded-full border-2 transition-all" :class="selectedColor === color ? 'border-ink dark:border-white scale-125' : 'border-transparent group-hover:border-gray-300'"></div>
@@ -899,6 +899,17 @@
                     preloadColorVariants(product);
                 };
 
+                const selectProductColor = (color) => {
+                    selectedColor.value = color;
+                    if (activeProduct.value) {
+                        imageLoaded.value = false;
+                        const imageUrl = getProductImage(activeProduct.value, color);
+                        preloadImage(imageUrl).then(() => {
+                            imageLoaded.value = true;
+                        });
+                    }
+                };
+
                 const addToCart = (product) => {
                     const actualColor = selectedColor.value || product.colors[0];
                     const existingItem = cart.value.find(item => 
@@ -1040,7 +1051,7 @@
                     filteredProducts, cartCount, cartTotal, colorMap,
                     toggleTheme, openProduct, addToCart, removeFromCart,
                     scrollToProducts, scrollToTop, goHome, getProductImage, updateQuantity,
-                    openCheckout
+                    openCheckout, preloadImage, preloadColorVariants, selectProductColor
                 };
             }
         }).mount('#app');
