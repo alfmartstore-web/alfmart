@@ -1,3 +1,17 @@
+name = "alfmart"
+pages_build_output_dir = "dist"
+
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
+
+[env.production]
+routes = [
+  { pattern = "/api/*", zone_name = "alfmart.store" }
+]
+
 [vars]
 SUPABASE_URL = "https://dvieojudteyiaoadeybo.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2aWVvanVkdGV5aWFvYWRleWJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc4NzI5NTEsImV4cCI6MjA4MzQ0ODk1MX0.s8Vup_TMz1X9Y_g-wyq8T9dzymt81BsjXRT2T41WUAk"
