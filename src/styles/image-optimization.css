@@ -63,14 +63,13 @@ img {
 
 /* Critical images (hero) - load immediately */
 img[fetchpriority="high"] {
-    importance: high;
     /* Faster initial paint for critical images */
     content-visibility: auto;
 }
 
 /* Below-the-fold images - load later */
 img[loading="lazy"] {
-    importance: low;
+    content-visibility: auto;
 }
 
 /* Prevent cumulative layout shift */
@@ -87,14 +86,8 @@ img {
     aspect-ratio: 4 / 5;
 }
 
-/* Decoding optimization */
-img[decoding="async"] {
-    decoding: async;
-}
-
-img[decoding="sync"] {
-    decoding: sync;
-}
+/* Decoding optimization - handled by HTML attributes */
+/* Decoding is set via HTML img attributes, not CSS */
 
 /* Image containers with background color to prevent flash */
 .bg-\[\#EAEAEA\] {
@@ -191,11 +184,9 @@ img[decoding="sync"] {
 }
 
 /* Optimize text rendering while loading fonts */
-@font-face {
-    font-display: swap;
-}
+/* Note: @font-face is defined in main stylesheets with proper src and font-family */
 
-/* Reduce jank during image loading */
+/* Reduce jank during image loading - use content-visibility instead */
 img {
-    contains: layout style paint;
+    content-visibility: auto;
 }
